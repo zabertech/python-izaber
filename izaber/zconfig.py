@@ -32,23 +32,66 @@ class DictObj(object):
 class YAMLConfig(object):
     _app_name = 'ZaberConfig'
     _app_author = 'Zaber'
-    _config_dir = appdirs.user_data_dir(_app_name, _app_author)
+    _config_filename = 'zaber.yaml'
+    _config_dirs = [
+                    appdirs.user_data_dir(_app_name, _app_author),
+                    os.path.expanduser('~'),
+                    '.',
+                  ]
+
+    def config_find(self,config_dirs=None,config_filename=None):
+        """ Attempt to use the config dir/config_filenames to
+            locate the configuration file requested. Some folks
+            would prefer to keep their config in ~ where it's in 
+            plain sight rather than the buried application
+            specific location
+        """
+        if config_dirs is None:
+            config_dirs = self._config_dirs
+        else:
+            if isinstance(config_dirs,basestring):
+                config_dirs = [config_dirs]
+
+        if config_filename is None:
+            config_filename = self._config_filename
+        for test_dir in config_dirs:
+            test_fpath = os.path.join(test_dir,config_filename)
+            if os.path.isfile(test_fpath):
+                return test_fpath
+
+        # No matches found
+        return
 
     # ================================================
     # constructor
     # ================================================
-    def __init__(self, config_filename=None, config_buffer=None, environment=None): 
+    def __init__( self, 
+                  config_buffer=None, 
+                  config_dirs=None,
+                  config_filename=None, 
+                  environment=None
+                ): 
+
+        # Setup defaults
+        if config_filename:
+            self._config_filename = config_filename
+        if config_dirs:
+            if isinstance(config_dirs,basestring):
+                self._config_dirs = [config_dirs]
+            else:
+                self._config_dirs = config_dirs
+
+        import pdb; pdb.set_trace()
         if config_buffer:
             self._config_full_filname = None
             self._cfg = yaml.load(config_buffer)
         else:
-            if os.path.isfile(config_filename):
-                self._config_full_filename = config_filename
-            else:
-                self._config_full_filename = os.path.join(self._config_dir, \
-                        config_filename)
+            self._config_full_filename = self.config_find() \
+                                          or os.path.join(self._config_dirs[0], \
+                                                          self._config_filename)
 
             # check if config directory exists, and create if necessary
+            self._config_dir = os.path.dirname(self._config_full_filename)
             if not os.path.exists(self._config_dir):
                 os.makedirs(self._config_dir)
                     
