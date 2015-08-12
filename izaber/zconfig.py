@@ -1,6 +1,7 @@
 # ==================================================
 # some nice things about this class
 # ==================================================
+
 import appdirs
 import os
 import yaml
@@ -39,6 +40,9 @@ class YAMLConfig(object):
                     '.',
                   ]
 
+    def __nonzero__(self):
+        return self._cfg
+
     def config_find(self,config_dirs=None,config_filename=None):
         """ Attempt to use the config dir/config_filenames to
             locate the configuration file requested. Some folks
@@ -65,12 +69,17 @@ class YAMLConfig(object):
     # ================================================
     # constructor
     # ================================================
-    def __init__( self, 
+    def __init__(self,*args,**kwargs):
+        if args or kwargs:
+            self.load_config(*args,**kwargs)
+
+    def load_config( self, 
                   config_buffer=None, 
                   config_dirs=None,
                   config_filename=None, 
                   environment=None
                 ): 
+        # Does the actual work of loading
 
         # Setup defaults
         if config_filename:
@@ -81,7 +90,6 @@ class YAMLConfig(object):
             else:
                 self._config_dirs = config_dirs
 
-        import pdb; pdb.set_trace()
         if config_buffer:
             self._config_full_filname = None
             self._cfg = yaml.load(config_buffer)
@@ -198,4 +206,12 @@ class YAMLConfig(object):
         file_obj.close()
         print("Yay!  Configuration saved to {}".format(self._config_full_filename))
 
+# Global shared YAML configuration
+config = YAMLConfig()
 
+def load_config(*args,**kwargs):
+    """
+    Loads the globally shared YAML configuration
+    """
+    global config
+    config.load_config(*args,**kwargs)
