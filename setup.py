@@ -11,6 +11,7 @@ setup(name='izaber',
       install_requires=[
           'PyYAML',
           'appdirs'
+          'Jinja2'
       ],
       zip_safe=False)
 

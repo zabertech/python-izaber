@@ -2,6 +2,9 @@ import sys
 import re
 import imp
 
+from izaber.startup import initialize, app_config
+from izaber.zconfig import config
+
 class IZaberFinder(object):
 
     def find_module(self, module_name, package_path=None):
@@ -35,7 +38,5 @@ class IZaberLoader(object):
     def load_module(self, module_name):
         return imp.load_module(module_name, *self.args,**self.kwargs)
 
-
 sys.meta_path.append(IZaberFinder())
-
 

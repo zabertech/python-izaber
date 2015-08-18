@@ -7,6 +7,8 @@ import os
 import yaml
 import re
 
+from izaber.startup import initializer
+
 class DictObj(object):
     def __init__(self,config,data):
         self._config = config
@@ -14,6 +16,9 @@ class DictObj(object):
 
     def dict(self):
         return self._data
+
+    def get(self,*args,**kwargs):
+        return self._data.get(*args,**kwargs)
 
     def __getattr__(self,k):
         v = self._data[k]
@@ -74,9 +79,9 @@ class YAMLConfig(object):
             self.load_config(*args,**kwargs)
 
     def load_config( self, 
-                  config_buffer=None, 
-                  config_dirs=None,
                   config_filename=None, 
+                  config_dirs=None,
+                  config_buffer=None, 
                   environment=None
                 ): 
         # Does the actual work of loading
@@ -117,6 +122,10 @@ class YAMLConfig(object):
     # ================================================
     # dealing with dynamic attributes
     # ================================================
+    def get(self,k,default=None):
+        """ FIXME: support dot syntax here """
+        return self._cfg[self._env].get(k,default)
+
     def __getattr__(self, name):
         if name in self._cfg[self._env]:
             v = self._cfg[self._env][name] 
@@ -209,9 +218,16 @@ class YAMLConfig(object):
 # Global shared YAML configuration
 config = YAMLConfig()
 
-def load_config(*args,**kwargs):
+@initializer('config')
+def initialize(**kwargs):
     """
     Loads the globally shared YAML configuration
     """
     global config
-    config.load_config(*args,**kwargs)
+    config_opts = kwargs.get('config',{})
+
+    if isinstance(config_opts,basestring):
+        config_opts = {'config_filename':config_opts}
+
+    config.load_config(**config_opts)
+
