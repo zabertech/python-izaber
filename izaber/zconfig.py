@@ -6,34 +6,10 @@ import appdirs
 import os
 import yaml
 import re
+import copy
 
-from izaber.startup import initializer
-
-class DictObj(object):
-    def __init__(self,config,data):
-        self._config = config
-        self._data = data
-
-    def dict(self):
-        return self._data
-
-    def get(self,*args,**kwargs):
-        return self._data.get(*args,**kwargs)
-
-    def __getattr__(self,k):
-        v = self._data[k]
-        if isinstance(v,dict):
-            return DictObj(self._config,v)
-        return v
-
-    def __getitem__(self,k):
-        return self.__getattr__(k)
-
-    def __str__(self):
-        return str(self._data)
-
-    def __call__(self):
-        return self._data
+from izaber.startup import initializer, app_config
+from izaber.structs import DictObj, deep_merge
 
 class YAMLConfig(object):
     _app_name = 'ZaberConfig'
@@ -44,6 +20,10 @@ class YAMLConfig(object):
                     os.path.expanduser('~'),
                     '.',
                   ]
+    _overlays = []
+
+    _cfg = None
+    _cfg_merged = None
 
     def __nonzero__(self):
         return self._cfg
@@ -82,7 +62,8 @@ class YAMLConfig(object):
                   config_filename=None, 
                   config_dirs=None,
                   config_buffer=None, 
-                  environment=None
+                  environment=None,
+                  overlays=None
                 ): 
         # Does the actual work of loading
 
@@ -119,16 +100,33 @@ class YAMLConfig(object):
             environment = 'default'
         self._env = environment
 
+        # Apply the overlay if required
+        if not overlays:
+            overlays = []
+        self._overlays = overlays
+        self.overlay_load()
+
+    def overlay_load(self):
+        _cfg_merged = copy.deepcopy(self._cfg.get('default',{}))
+        _cfg_merged = deep_merge(_cfg_merged,self._cfg[self._env])
+        for overlay in self._overlays:
+            _cfg_merged = deep_merge(_cfg_merged,overlay)
+        self._cfg_merged = _cfg_merged
+
+    def overlay_add(self,overlay):
+        self._overlays.append(overlay)
+        self._cfg_merged = deep_merge(self._cfg_merged,overlay)
+
     # ================================================
     # dealing with dynamic attributes
     # ================================================
     def get(self,k,default=None):
         """ FIXME: support dot syntax here """
-        return self._cfg[self._env].get(k,default)
+        return self._cfg_merged.get(k,default)
 
     def __getattr__(self, name):
         if name in self._cfg[self._env]:
-            v = self._cfg[self._env][name] 
+            v = self._cfg_merged[name] 
             if isinstance(v,dict):
                 return DictObj(self,v)
             return v
@@ -138,13 +136,12 @@ class YAMLConfig(object):
         return self.__getattr__(name)
 
     def addon_config(self,name):
-        if name in self._cfg[self._env]:
-            v = self._cfg[self._env][name]
-        elif name in self._cfg['default']:
-            v = self._cfg['default'][name]
+        if name in self._cfg_merged:
+            v = self._cfg_merged[name]
         else:
             v = {}
             self._cfg[self._env][name] = v
+            self._cfg_merged[name] = v
         return DictObj(self,v)
 
 
@@ -230,4 +227,11 @@ def initialize(**kwargs):
         config_opts = {'config_filename':config_opts}
 
     config.load_config(**config_opts)
+
+    # Overlay the subconfig
+    if kwargs.get('name'):
+        subconfig = config.get(kwargs.get('name'),{})
+        config.overlay_add(subconfig)
+
+    config.overlay_add(app_config)
 

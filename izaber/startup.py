@@ -8,7 +8,8 @@ def initializer(key):
 
     return lambda f: rack(key,f)
 
-def initialize(**kwargs):
+def initialize(name,**kwargs):
+    kwargs['name'] = name
     app_config.update(kwargs)
     for key, func in dict(initialization_rack).iteritems():
         if not initialization_rack[key]:

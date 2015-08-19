@@ -78,6 +78,7 @@ class File(Path):
         return getattr(self.file_handle,k)
 
 class DataDir(object):
+
     def __init__(self,*args,**kwargs):
         if args or kwargs:
             self.initialize(*args, **kwargs)
@@ -141,6 +142,12 @@ class DataDir(object):
                     **kwargs
                 )
 
+    def path_get(self, path_template, **kwargs):
+        return Path(
+                    path_template=path_template,
+                    **kwargs
+                )
+
     def logger(self,fpath=None,log_level=None):
         """ Creates a custom logger
         """
@@ -150,6 +157,11 @@ class DataDir(object):
     def open(self,fname,mode=None,*args,**kwargs):
         f = self.file_get(fname,**kwargs).open(mode=mode)
         return f
+
+    def __getattr__(self,k):
+        if self.paths and k in self.paths:
+            return self.paths[k]
+        raise AttributeError("{} is not found in {}".format(k,self.paths))
 
 paths = DataDir()
 
@@ -305,23 +317,5 @@ if __name__ == '__main__':
 
     custom_log = getLogger('custom')
     custom_log.warn('THIS IS A WARNING')
-
-    """
-    f = File('/tmp/','hoser_{{dt}}.txt').open('w')
-    f.write('hello')
-    f.close()
-
-    d = DataDir(
-          path='/tmp',
-          log_path='{{path}}/logs',
-          data_path='{{path}}/data',
-        )
-
-    f2 = d.open('potato_power_{{dt}}.txt','w')
-
-    f2.write('another test')
-    f2.close()
-    """
-
 
 
