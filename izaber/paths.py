@@ -167,7 +167,7 @@ paths = DataDir()
 
 logger_defaults = {
   'filemode': 'a',
-  'format': '%(levelname)s %(asctime)s %(module)s: %(message)s',
+  # 'format': '%(levelname)s %(asctime)s %(module)s: %(message)s',
   'datefmt': '%Y-%m-%d %H:%M:%S',
   'level': logging.WARNING
 }
