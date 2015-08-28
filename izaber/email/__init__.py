@@ -1,5 +1,6 @@
 import smtplib
 import logging
+import pkg_resources
 
 from email.parser import Parser
 from email.mime.multipart import MIMEMultipart
@@ -12,6 +13,11 @@ from izaber.startup import initializer
 from izaber.paths import paths
 from izaber.templates import parse
 
+import pdb; pdb.set_trace()
+dist = pkg_resources.get_distribution('zaber-cron-sql')
+config_file = os.path.join(dist.location, 'production.ini')
+
+
 log = logging.getLogger('email')
 
 class Mailer(object):
@@ -23,6 +29,15 @@ class Mailer(object):
         server = smtplib.SMTP(host)
         server.sendmail(*args,**kwargs)
         server.quit()
+
+    def attachment_create(self,fpath):
+        full_fpath = paths.full_fpath(fpath)
+        with open(full_fpath,'rb') as f:
+            # FIXME: Do I need to handle mimetype?
+            # _subtype="???" eg. pdf
+            att = email.mime.application.MIMEApplication(f.read())
+        att.add_header('Content-Disposition','attachment',filename=filename)
+        return att
 
     def message_send(self,msg):
         return self.sendmail(
@@ -59,11 +74,16 @@ class Mailer(object):
             )
 
     def template_parse(self,fpath,**tags):
-
         tags['config'] = config.dict()
-
         parsed_email = parse(fpath,**tags)
+        return self.message_fromstr(parsed_email)
 
+    def template_parsestr(self,template,**tags):
+        tags['config'] = config.dict()
+        parsed_email = parsestr(template,**tags)
+        return self.message_fromstr(parsed_email)
+
+    def message_fromstr(self,parsed_email):
         e = Parser().parsestr(parsed_email)
 
         msg = MIMEMultipart('alternative')
