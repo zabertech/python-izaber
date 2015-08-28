@@ -8,14 +8,16 @@ from izaber import config
 
 compiled_templates = {}
 
-template_loader = jinja2.FileSystemLoader(searchpath=".")
+template_loader = jinja2.FileSystemLoader(searchpath=[".","/"])
 template_env = jinja2.Environment(loader=template_loader)
 
 def parse(template,**tags):
     template_fpath = paths.full_fpath(template)
     now = datetime.datetime.now()
     tags.update({
+        'now': now,
         'date': now.strftime('%Y-%m-%d'),
+        'date_iso': now.isoformat(),
         'time': now.strftime('%H:%M:%S'),
         'dt': now.strftime('%Y-%m-%d_%H-%M-%S'),
         'config': config,
