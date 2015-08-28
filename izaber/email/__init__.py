@@ -24,7 +24,14 @@ class Mailer(object):
         server.sendmail(*args,**kwargs)
         server.quit()
 
-    def send_basic_email(
+    def send_message(self,msg):
+        return self.sendmail(
+                    msg['from'],
+                    msg['to'],
+                    msg.as_string()
+                )
+
+    def basic_send(
               self,
               from_addr,
               to_addrs,
@@ -42,13 +49,19 @@ class Mailer(object):
         if self.options.get('debug'):
             log.debug(msg.as_string())
         else:
+            to = msg['to']
+            if isinstance(to,basestring):
+                to = [to.split(',')]
             self.sendmail(
                 msg['from'],
-                msg['to'],
+                to,
                 msg.as_string()
             )
 
     def template_parse(self,fpath,**tags):
+
+        tags['config'] = config.dict()
+
         parsed_email = parse(fpath,**tags)
 
         e = Parser().parsestr(parsed_email)
