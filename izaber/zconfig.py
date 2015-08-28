@@ -28,6 +28,9 @@ class YAMLConfig(object):
     def __nonzero__(self):
         return self._cfg
 
+    def dict(self):
+        return self._cfg_merged
+
     def config_find(self,config_dirs=None,config_filename=None):
         """ Attempt to use the config dir/config_filenames to
             locate the configuration file requested. Some folks
