@@ -24,7 +24,7 @@ class Mailer(object):
         server.sendmail(*args,**kwargs)
         server.quit()
 
-    def send_message(self,msg):
+    def message_send(self,msg):
         return self.sendmail(
                     msg['from'],
                     msg['to'],
