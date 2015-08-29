@@ -40,7 +40,6 @@ class Mailer(object):
             'Content-Disposition',
             'attachment; filename="{}"'.format(os.path.basename(fpath))
         )
-
         return att
 
     def message_send(self,msg):
@@ -89,25 +88,15 @@ class Mailer(object):
 
     def message_fromstr(self,parsed_email):
         e = Parser().parsestr(parsed_email)
-
         msg = MIMEMultipart('mixed')
         for k,v in dict(e).iteritems():
             msg[k] = v
-
         msg_text = MIMEMultipart('alternative')
-
         html = e.get_payload()
-
-        soup = BeautifulSoup(html,"html5lib")
-        text = soup.get_text()
-
-        part1 = MIMEText(text, 'plain')
-        part2 = MIMEText(html, 'html')
-
-        msg_text.attach(part1)
-        msg_text.attach(part2)
+        text = BeautifulSoup(html,"html5lib").get_text()
+        msg_text.attach(MIMEText(text,'plain'))
+        msg_text.attach(MIMEText(html,'html'))
         msg.attach(msg_text)
-
         return msg
 
 mailer = Mailer()
