@@ -1,3 +1,4 @@
+import os.path
 import smtplib
 import logging
 import pkg_resources
@@ -5,18 +6,16 @@ import pkg_resources
 from email.parser import Parser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email.mime.base import MIMEBase
+from email import encoders
 
 from bs4 import BeautifulSoup
 
 from izaber import config, app_config
 from izaber.startup import initializer
 from izaber.paths import paths
-from izaber.templates import parse
-
-import pdb; pdb.set_trace()
-dist = pkg_resources.get_distribution('zaber-cron-sql')
-config_file = os.path.join(dist.location, 'production.ini')
-
+from izaber.templates import parse, parsestr
 
 log = logging.getLogger('email')
 
@@ -34,15 +33,20 @@ class Mailer(object):
         full_fpath = paths.full_fpath(fpath)
         with open(full_fpath,'rb') as f:
             # FIXME: Do I need to handle mimetype?
-            # _subtype="???" eg. pdf
-            att = email.mime.application.MIMEApplication(f.read())
-        att.add_header('Content-Disposition','attachment',filename=filename)
+            att = MIMEBase('application', "octet-stream")
+            att.set_payload(f.read())
+            encoders.encode_base64(att)
+        att.add_header(
+            'Content-Disposition',
+            'attachment; filename="{}"'.format(os.path.basename(fpath))
+        )
+
         return att
 
     def message_send(self,msg):
         return self.sendmail(
                     msg['from'],
-                    msg['to'],
+                    msg['to'].split(','),
                     msg.as_string()
                 )
 
@@ -86,9 +90,11 @@ class Mailer(object):
     def message_fromstr(self,parsed_email):
         e = Parser().parsestr(parsed_email)
 
-        msg = MIMEMultipart('alternative')
+        msg = MIMEMultipart('mixed')
         for k,v in dict(e).iteritems():
             msg[k] = v
+
+        msg_text = MIMEMultipart('alternative')
 
         html = e.get_payload()
 
@@ -98,8 +104,9 @@ class Mailer(object):
         part1 = MIMEText(text, 'plain')
         part2 = MIMEText(html, 'html')
 
-        msg.attach(part1)
-        msg.attach(part2)
+        msg_text.attach(part1)
+        msg_text.attach(part2)
+        msg.attach(msg_text)
 
         return msg
 
