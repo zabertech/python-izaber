@@ -23,10 +23,29 @@ class Mailer(object):
     def load_config(self,**options):
         self.options = options
 
-    def sendmail(self,*args,**kwargs):
+    def sendmail(self,**kwargs):
+        if config.get('debug') or self.options.get('debug'):
+            msg = kwargs['msg']
+            log.info(
+                'DID NOT send email "{}" from "{}" to {}'.format(
+                    msg['Subject'],
+                    kwargs.get('from_addr'),
+                    msg['To'],
+                )
+            )
+            log.debug(msg.as_string())
+
+        log.info(
+            'Sent email "{}" from "{}" to {}'.format(
+                kwargs['msg']['Subject'],
+                kwargs.get('from_addr'),
+                kwargs['msg']['To'],
+            )
+        )
         host = self.options.get('host',config.email.host)
         server = smtplib.SMTP(host)
-        server.sendmail(*args,**kwargs)
+        kwargs['msg'] = kwargs['msg'].as_string()
+        server.sendmail(**kwargs)
         server.quit()
 
     def attachment_create(self,fpath):
@@ -44,9 +63,9 @@ class Mailer(object):
 
     def message_send(self,msg):
         return self.sendmail(
-                    msg['from'],
-                    msg['to'].split(','),
-                    msg.as_string()
+                    from_addr=msg['from'],
+                    to_addrs=msg['to'].split(','),
+                    msg=msg
                 )
 
     def basic_send(
@@ -60,21 +79,22 @@ class Mailer(object):
         msg['Subject'] = subject
         msg['From'] = from_addr
         msg['To'] = ", ".join(to_addrs)
-        self.sendmail(from_addr,to_addrs,msg.as_string())
+        self.sendmail(
+            from_addr=from_addr,
+            to_addrs=to_addrs,
+            msg=msg
+        )
 
     def template_send(self,fpath,**kwargs):
         msg = self.template_parse(fpath,**kwargs)
-        if self.options.get('debug'):
-            log.debug(msg.as_string())
-        else:
-            to = msg['to']
-            if isinstance(to,basestring):
-                to = [to.split(',')]
-            self.sendmail(
-                msg['from'],
-                to,
-                msg.as_string()
-            )
+        to = msg['to']
+        if isinstance(to,basestring):
+            to = [to.split(',')]
+        self.sendmail(
+            msg['from'],
+            to,
+            msg.as_string()
+        )
 
     def template_parse(self,fpath,**tags):
         tags['config'] = config.dict()
