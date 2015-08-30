@@ -71,11 +71,11 @@ If a configuration like the following is given::
 
   default:
     paths:
-        path: ~
-        template_path: {{path}}/templates
-        reports_path: {{data_path}}/reports
-        data_path: {{path}}/data
-        daily_report_path: {{reports_path}}/{{date}}
+        path: '~'
+        template_path: '{{path}}/templates'
+        reports_path: '{{data_path}}/reports'
+        data_path: '{{path}}/data'
+        daily_report_path: '{{reports_path}}/{{date}}'
 
 There are 4 paths here ``path``, ``template_path``, ``data_path``, and ``reports_path``. 
 
@@ -98,12 +98,12 @@ In code, accessing the directories is pretty straightforward::
   initialize('example') 
 
   # Show the reports_path
-  print paths.report_path
+  print paths.reports_path
 
   # Create a new file report
   # This opens a write filehandle to ~/data/reports/report_YYYY-MM-DD.csv 
-  rep_fh = paths.report_path.open('report_{date}.csv','w')
-  rep_fh.write('Hello,There)
+  rep_fh = paths.reports_path.open('report_{{date}}.csv','w')
+  rep_fh.write('Hello There!')
   rep_fh.close()
 
 The initialization will load the directories and prepare them for use. Be aware that paths are automatically created when the initialization takes place. That is, the system will calculate the list of paths then perform an os.makedirs on each one.
@@ -132,11 +132,11 @@ For this example, this will use the same configuration as the previous example::
 
   default:
     paths:
-        path: ~
-        template_path: {{path}}/templates
-        reports_path: {{data_path}}/reports
-        data_path: {{path}}/data
-        daily_report_path: {{reports_path}}/{{date}}
+        path: '~'
+        template_path: '{{path}}/templates'
+        reports_path: '{{data_path}}/reports'
+        data_path: '{{path}}/data'
+        daily_report_path: '{{reports_path}}/{{date}}'
 
 Then, the code can look something like this::
 
@@ -169,14 +169,15 @@ Amending the configuration file to look like this::
 
   default:
     paths:
-        path: ~
-        template_path: {{path}}/templates
-        reports_path: {{data_path}}/reports
-        data_path: {{path}}/data
-        daily_report_path: {{reports_path}}/{{date}}
+        path: '~'
+        template_path: '{{path}}/templates'
+        reports_path: '{{data_path}}/reports'
+        data_path: '{{path}}/data'
+        daily_report_path: '{{reports_path}}/{{date}}'
     example2:
         paths:
-            reports_path: {{path}}/example2reports
+            reports_path: '{{path}}/example2reports'
+
 
 With this configuration file, the new section, ``default.example2``, will be overlayed on top of the default configuration properties if requested.
 
@@ -191,12 +192,12 @@ How to request to have the overlay performed? A small change to the initializati
   initialize('example2') 
 
   # Show the reports_path
-  print paths.report_path
+  print paths.reports_path
 
   # Create a new file report
   # This opens a write filehandle to ~/data/example2reports/report_YYYY-MM-DD.csv 
-  rep_fh = paths.report_path.open('report_{date}.csv','w')
-  rep_fh.write('Hello,There)
+  rep_fh = paths.reports_path.open('report_{{date}}.csv','w')
+  rep_fh.write('Hello There')
   rep_fh.close()
 
 The only change from the previous example is modifying the ``initialize('example2')``.
@@ -218,19 +219,20 @@ Let's say that for the previous example, it would be nice to have a test directo
 
 To configure, amend the configuration to look like this::
 
+
   default:
     paths:
-        path: ~
-        template_path: {{path}}/templates
-        reports_path: {{data_path}}/reports
-        data_path: {{path}}/data
-        daily_report_path: {{reports_path}}/{{date}}
+        path: '~'
+        template_path: '{{path}}/templates'
+        reports_path: '{{data_path}}/reports'
+        data_path: '{{path}}/data'
+        daily_report_path: '{{reports_path}}/{{date}}'
     example2:
         paths:
-            reports_path: {{path}}/example2reports
+            reports_path: '{{path}}/example2reports'
   test:
       paths:
-          path: ~/test
+          path: '~/test'
 
 In code, to tell the initialize script to reference the test environment, the previous example can be amended to:: 
 
@@ -243,12 +245,12 @@ In code, to tell the initialize script to reference the test environment, the pr
   initialize('example2',environment='test') 
 
   # Show the reports_path
-  print paths.report_path
+  print paths.reports_path
 
   # Create a new file report
   # This opens a write filehandle to ~/test/data/example2reports/report_YYYY-MM-DD.csv 
-  rep_fh = paths.report_path.open('report_{date}.csv','w')
-  rep_fh.write('Hello,There)
+  rep_fh = paths.reports_path.open('report_{{date}}.csv','w')
+  rep_fh.write('Hello There')
   rep_fh.close()
 
 The only difference was to update the call to ``initialize(...)`` to include ``environment='test'``. 
@@ -268,11 +270,12 @@ If we wanted to see all logging for all levels (normally the library is set to o
     log:
         level: 10
     paths:
-        path: ~
-        template_path: {{path}}/templates
-        reports_path: {{data_path}}/reports
-        data_path: {{path}}/data
-        daily_report_path: {{reports_path}}/{{date}}
+        path: '~'
+        template_path: '{{path}}/templates'
+        reports_path: '{{data_path}}/reports'
+        data_path: '{{path}}/data'
+        daily_report_path: '{{reports_path}}/{{date}}'
+
 
 The numeric level values correspond so:
 
@@ -337,15 +340,18 @@ Beyond opening files, it's also nice to be able to communicate. This example wil
 The configuration file will need information to the email server, which can be amended from the previous example like this:: 
 
   default:
-    email:
-        host: mail.example.com
-        from: automatedsender@example.com
-        to: recipient@example.com
+    log:
+        level: 10
     paths:
-        path: ~
-        template_path: {{path}}/templates
-        reports_path: {{data_path}}/reports
-        data_path: {{path}}/data
+        path: '~'
+        template_path: '{{path}}/templates'
+        reports_path: '{{data_path}}/reports'
+        data_path: '{{path}}/data'
+        daily_report_path: '{{reports_path}}/{{date}}'
+    email:
+        host: 'mail.example.com'
+        from: 'automatedsender@example.com'
+        to: 'recipient@example.com'
 
 
 For the script it will look like the following::
