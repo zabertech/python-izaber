@@ -228,6 +228,8 @@ def initialize(**kwargs):
 
     if isinstance(config_opts,basestring):
         config_opts = {'config_filename':config_opts}
+    if 'environment' in kwargs:
+        config_opts['environment'] = kwargs['environment']
 
     config.load_config(**config_opts)
 
