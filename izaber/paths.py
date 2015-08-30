@@ -41,6 +41,9 @@ class Path(object):
         full_fpath = os.path.join(unicode(self.path),parsed_fpath)
         return full_fpath
 
+    def open(self,fpath,*args,**kwargs):
+        return File(self.path_template,fpath).open(*args,**kwargs)
+
     def exists(self):
         return os.path.exists(self.path)
 
@@ -101,19 +104,28 @@ class DataDir(object):
             'path': self.path
         }
         seen = {}
-        def path_tag(self,k,path_template,seen=None):
-            if not seen: seen = {}
-            if k in seen:
-                raise Exception('Cyclic dependancy found')
+        class SneakyString(object):
+            def __init__(self,path_key,path_template):
+                self.path_key = path_key
+                self.path_template = path_template
 
-            if not k in resolved_paths:
-                full_path = parse(path_template,**tags)
-                resolved_paths[k] = Path(full_path,**tags)
+            def path_tag(self,k,path_template,seen=None):
+                if not seen: seen = {}
+                if k in seen:
+                    raise Exception('Cyclic dependancy found')
+                if not k in resolved_paths:
+                    full_path = parse(path_template,**tags)
+                    resolved_paths[k] = Path(full_path,**tags)
+                return resolved_paths[k]
 
-            return resolved_paths[k]
+            def __unicode__(self):
+                return unicode(self.path_tag(self.path_key,self.path_template))
+
+            def __str__(self):
+                return str(self.path_tag(self.path_key,self.path_template))
 
         for k,path_template in path_templates.iteritems():
-            tags[k] = lambda *a: str(path_tag(self,k,path_template))
+            tags[k] = SneakyString(k,path_template)
 
         for k,path_template in path_templates.iteritems():
             if k in resolved_paths: continue
