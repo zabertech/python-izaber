@@ -17,7 +17,8 @@ def parse(template,**tags):
         'time': now.strftime('%H:%M:%S'),
         'dt': now.strftime('%Y-%m-%d_%H-%M-%S'),
     })
-    return jinja2.Template(template).render(**tags)
+    path = jinja2.Template(template).render(**tags)
+    return os.path.expanduser(path)
 
 class Path(object):
     path_template = None
