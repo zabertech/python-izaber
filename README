@@ -15,8 +15,7 @@ scheduled event and SQL support.
 
 Documentation
 =============
-API documentation, usage and examples can be found in the "documentation"
-directory.
+API documentation, usage and examples can be found in the "docs" directory.
 
 Installation
 ============
