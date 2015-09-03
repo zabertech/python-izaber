@@ -13,7 +13,7 @@ class Test(unittest.TestCase):
 
 if __name__ == '__main__':
     initialize(
-        name='overlay_test',
+        'overlay_test',
         config='data/zaber.yaml',
         email={
             'explicit': 'done!'
