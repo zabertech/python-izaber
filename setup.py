@@ -10,7 +10,7 @@ setup(name='izaber',
       packages=['izaber'],
       install_requires=[
           'PyYAML',
-          'appdirs'
+          'appdirs',
           'Jinja2'
       ],
       zip_safe=False)
