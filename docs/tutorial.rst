@@ -207,7 +207,7 @@ This overlaying feature allows for resources, such as email server configuration
 Production, Sandboxes and Development
 -------------------------------------
 
-It's probably best not to not always be testing scripts against the production servers.
+It's probably best not to always be testing scripts against the production servers.
 
 The configuration system also provides a means to switch between sets of configurations or *environments* to overlay parameters to nerf the damage capacity of a script.
 
@@ -443,6 +443,8 @@ Debugging Emails
 
 As scripting with emails can make a small embarassing situation and turn it into a massive one, there's also facility for debugging.
 
+Instead of sending the email, the raw email will be logged to your system log.
+
 If you wish to isolate debugging behaviour to just the email module, update the configuration so ``config.email.debug`` is ``true``. 
 
 If you want the debug mode enabled globally, you can set ``config.debug`` to ``true``.
@@ -461,8 +463,4 @@ For example the previous examples' configuration file could be modified to look 
     paths:
         path: ~
 
-Instead of sending the email, the raw email will be logged to your system log. There are two ``debug: true`` entries in there that if all you want to do is debug email, it's redundant.
-
-
-
-
+There are two ``debug: true`` entries in there, and if all you want to do is debug email, it's redundant.
