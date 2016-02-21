@@ -21,7 +21,9 @@ def initialize(name,**kwargs):
             continue
         if key in dependancies:
             for b in dependancies.get(key,[]):
-                kwargs = request_initialize(b,**kwargs)
+                result = request_initialize(b,**kwargs)
+                if result:
+                    kwargs = result
 
         kwargs = request_initialize(key,**kwargs)
         initialization_rack[key] = None
