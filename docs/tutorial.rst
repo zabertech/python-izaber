@@ -23,11 +23,11 @@ Basic Concepts
 
 This library is opininated. It dictates where certain things should be and how some parts of your code should be written. Sorry about that.
 
-A configuration file named "``zaber.yaml``" is expected in the home directory "``~``" which varies depending on OS:
+A configuration file named "``izaber.yaml``" is expected in the home directory "``~``" which varies depending on OS:
 
-* **Linux:** ``/home/yourusername/zaber.yaml``
-* **MacOS:** ``/Users/yourusername/zaber.yaml``
-* **Windows:** ``\Users\yourusername\zaber.yaml``
+* **Linux:** ``/home/yourusername/izaber.yaml``
+* **MacOS:** ``/Users/yourusername/izaber.yaml``
+* **Windows:** ``\Users\yourusername\izaber.yaml``
 
 The contents typically looks something similar to this::
 
@@ -50,7 +50,7 @@ The bare minmum script might look something like this::
   from izaber import initialize, config
 
   # Initialize the library, load the config, inform the system that the application key is 'example'
-  initialize('example') 
+  initialize('example')
 
   # reach in and grab a configuration value
   print "The email host is {}".format(config.email.host) 
@@ -58,7 +58,7 @@ The bare minmum script might look something like this::
 The initialize function is actually quite complex and allows for on-demand initialization of services and dependancies. 
 Once the function is complete, the system should be prepared for usage in your application.
 
-The simple example here, it only seeks loads the ``~/zaber.yaml`` into the ``config`` object.
+The simple example here, it only seeks loads the ``~/izaber.yaml`` into the ``config`` object.
 
 In the following section, more complex scripts are demonstrating some using the various services available.
 
@@ -95,7 +95,7 @@ In code, accessing the directories is pretty straightforward::
   from izaber.paths import paths
 
   # Initialize the library, load the config, inform the system that the application key is 'example'
-  initialize('example') 
+  initialize('example')
 
   # Show the reports_path
   print paths.reports_path
@@ -189,7 +189,7 @@ How to request to have the overlay performed? A small change to the initializati
   from izaber.paths import paths
 
   # Initialize the library, load the config, inform the system that the application key is 'example2'
-  initialize('example2') 
+  initialize('example2')
 
   # Show the reports_path
   print paths.reports_path
@@ -394,7 +394,7 @@ Sending Attachments
 
 The previous example only allowed for a message to be sent. What about attachments?
 
-To do that, the configuration file can remain the same as the above example in ``~/zaber.yaml``::
+To do that, the configuration file can remain the same as the above example in ``~/izaber.yaml``::
 
   default:
     email:

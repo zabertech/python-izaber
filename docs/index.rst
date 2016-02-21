@@ -13,6 +13,7 @@ Contents:
 
    installation
    tutorial
+   extending
 
 
 Indices and tables

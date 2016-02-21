@@ -1,0 +1,21 @@
+default:
+  log:
+      level: 50
+      email:
+          level: 10
+  paths:
+      path: './data'
+      template_path: '{{path}}/templates'
+  email:
+      debug: true
+      host: localhost
+      misc: user
+  cron:
+      sql:
+          default: 'postgresql://scott:tiger@localhost/test'
+          rw: 'postgresql://scott:tiger@localhost/test'
+
+  overlay_test:
+      email:
+          misc: 127.0.0.1
+

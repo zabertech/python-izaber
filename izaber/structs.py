@@ -11,7 +11,7 @@ def deep_merge(base,overlay):
         raise Exception('Data structures cannot be combined.')
 
     if isinstance(base,dict):
-        for k,v in overlay.iteritems():
+        for k,v in overlay.items():
             base[k] = deep_merge(base.get(k),v)
         return base
 

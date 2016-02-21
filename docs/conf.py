@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'iZaber'
-copyright = u'2015, Zaber Technologies Inc (Aki Mimoto)'
+copyright = u'2015-2016, Zaber Technologies Inc (Aki Mimoto)'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

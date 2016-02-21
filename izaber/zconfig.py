@@ -8,13 +8,14 @@ import yaml
 import re
 import copy
 
+from izaber.compat import *
 from izaber.startup import initializer, app_config
 from izaber.structs import DictObj, deep_merge
 
 class YAMLConfig(object):
     _app_name = 'ZaberConfig'
     _app_author = 'Zaber'
-    _config_filename = 'zaber.yaml'
+    _config_filename = 'izaber.yaml'
     _config_dirs = [
                     appdirs.user_data_dir(_app_name, _app_author),
                     os.path.expanduser('~'),
@@ -34,7 +35,7 @@ class YAMLConfig(object):
     def config_find(self,config_dirs=None,config_filename=None):
         """ Attempt to use the config dir/config_filenames to
             locate the configuration file requested. Some folks
-            would prefer to keep their config in ~ where it's in 
+            would prefer to keep their config in ~ where it's in
             plain sight rather than the buried application
             specific location
         """
@@ -61,13 +62,13 @@ class YAMLConfig(object):
         if args or kwargs:
             self.load_config(*args,**kwargs)
 
-    def load_config( self, 
-                  config_filename=None, 
+    def load_config( self,
+                  config_filename=None,
                   config_dirs=None,
-                  config_buffer=None, 
+                  config_buffer=None,
                   environment=None,
                   overlays=None
-                ): 
+                ):
         # Does the actual work of loading
 
         # Setup defaults
@@ -85,13 +86,13 @@ class YAMLConfig(object):
         else:
             self._config_full_filename = self.config_find() \
                                           or os.path.join(self._config_dirs[0], \
-                                                          self._config_filename)
+                                             self._config_filename)
 
             # check if config directory exists, and create if necessary
             self._config_dir = os.path.dirname(self._config_full_filename)
             if not os.path.exists(self._config_dir):
                 os.makedirs(self._config_dir)
-                    
+
             try:
                 with open(self._config_full_filename,'r') as file_obj:
                     self._cfg = yaml.load(file_obj)
@@ -111,6 +112,8 @@ class YAMLConfig(object):
 
     def overlay_load(self):
         _cfg_merged = copy.deepcopy(self._cfg.get('default',{}))
+        if self._env not in self._cfg:
+            raise Exception("Could not find environment '%s' in configuration",self._env)
         _cfg_merged = deep_merge(_cfg_merged,self._cfg[self._env])
         for overlay in self._overlays:
             _cfg_merged = deep_merge(_cfg_merged,overlay)
@@ -129,7 +132,7 @@ class YAMLConfig(object):
 
     def __getattr__(self, name):
         if name in self._cfg[self._env]:
-            v = self._cfg_merged[name] 
+            v = self._cfg_merged[name]
             if isinstance(v,dict):
                 return DictObj(self,v)
             return v
@@ -153,7 +156,7 @@ class YAMLConfig(object):
     # ================================================
     def environment(self, env=None):
         if env != None:
-            self._env = env 
+            self._env = env
             if self._env not in self._cfg:
                 self._cfg[self._env] = {}
         return self._env
@@ -162,7 +165,7 @@ class YAMLConfig(object):
     # ================================================
     # run a basic wizard interface
     # ================================================
-    def wizard(self, wizard_options): 
+    def wizard(self, wizard_options):
         for attribute in wizard_options:
             # if needed, this would be a good place to check for existence of
             # 'key' and 'prompt' and either 'default' or 'validate'
@@ -174,7 +177,7 @@ class YAMLConfig(object):
             # if it has already been set in the config, use that
             # otherwise, use what's given in the wizard
             if attribute['key'] in self._cfg[self._env]:
-                default = self._cfg[self._env][attribute['key']] 
+                default = self._cfg[self._env][attribute['key']]
             elif 'default' in attribute:
                 try:
                     default = attribute['default']()
@@ -207,7 +210,7 @@ class YAMLConfig(object):
     # ================================================
     # write config to yaml file
     # ================================================
-    def save(self): 
+    def save(self):
         if self._config_full_filename == None:
             raise Exception("Cannot save config when ")
         file_obj = open(self._config_full_filename, 'w')
@@ -224,10 +227,12 @@ def initialize(**kwargs):
     Loads the globally shared YAML configuration
     """
     global config
-    config_opts = kwargs.get('config',{})
+    config_opts = kwargs.setdefault('config',{})
 
     if isinstance(config_opts,basestring):
         config_opts = {'config_filename':config_opts}
+        kwargs['config'] = config_opts
+
     if 'environment' in kwargs:
         config_opts['environment'] = kwargs['environment']
 

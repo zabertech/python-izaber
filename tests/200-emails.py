@@ -22,7 +22,7 @@ class Test(unittest.TestCase):
 if __name__ == '__main__':
     initialize(
         name='overlay_test',
-        config='data/zaber.yaml'
+        config='data/izaber.yaml'
     )
     unittest.main()
 

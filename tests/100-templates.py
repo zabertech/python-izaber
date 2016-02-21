@@ -13,6 +13,6 @@ class Test(unittest.TestCase):
         self.assertEqual(result,match_str)
 
 if __name__ == '__main__':
-    initialize(config='data/zaber.yaml')
+    initialize(config='data/izaber.yaml')
     unittest.main()
 
