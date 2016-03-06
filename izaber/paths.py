@@ -31,7 +31,7 @@ class Path(object):
         else:
             self.path_template = path_template
         self.tags = tags
-        self.path = self.parse(self.path_template)
+        self.path = self.parse(self.path_template or '.')
 
     def parse(self,buf,**tags):
         tags.update(self.tags)

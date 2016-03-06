@@ -131,12 +131,12 @@ class YAMLConfig(object):
         return self._cfg_merged.get(k,default)
 
     def __getattr__(self, name):
-        if name in self._cfg[self._env]:
-            v = self._cfg_merged[name]
-            if isinstance(v,dict):
-                return DictObj(self,v)
-            return v
-        raise AttributeError("{} is not an attribute".format(name))
+        if name not in self._cfg_merged:
+            raise AttributeError("{} is not an attribute".format(name))
+        v = self._cfg_merged[name]
+        if isinstance(v,dict):
+            return DictObj(self,v)
+        return v
 
     def __getitem__(self,name):
         return self.__getattr__(name)
