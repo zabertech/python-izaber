@@ -93,15 +93,27 @@ class Mailer(object):
         if isinstance(to,basestring):
             to = [to.split(',')]
         self.sendmail(
-            msg['from'],
-            to,
-            msg.as_string()
+            from_addr=msg['from'],
+            to_addrs=to,
+            msg=msg,
         )
 
     def template_parse(self,fpath,**tags):
         tags['config'] = config.dict()
         parsed_email = parse(fpath,**tags)
         return self.message_fromstr(parsed_email)
+
+
+    def template_sendstr(self,template,**kwargs):
+        msg = self.template_parsestr(template,**kwargs)
+        to = msg['to']
+        if isinstance(to,basestring):
+            to = [to.split(',')]
+        self.sendmail(
+            from_addr=msg['from'],
+            to_addrs=to,
+            msg=msg
+        )
 
     def template_parsestr(self,template,**tags):
         tags['config'] = config.dict()

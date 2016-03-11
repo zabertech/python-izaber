@@ -362,7 +362,7 @@ For the script it will look like the following::
   from izaber.email import mailer
 
   # Initialize the library, load the config, inform the system that the application key is 'example'
-  initialize('example') 
+  initialize('example')
 
   # Load the templated email and send it
   mailer.template_send('{{path}}/myemail.email')
