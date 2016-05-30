@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='izaber',
-      version='1.0',
+      version='1.01',
       description='Base load point for iZaber code',
       url='',
       author='Aki Mimoto',

@@ -14,7 +14,7 @@ The iZaber base library provides:
 * **Initialization:** Provides a single entry point that can be hooked for unified subpackage initialization
 * **Namespace sharing:** Allows the sharing of izaber.* namespace with other packages
 
-This library came about after a number of different scripts were written around the office with each using a different configuration file doing similar tasks. 
+This library came about after a number of different scripts were written around the office with each using a different configuration file doing similar tasks.
 For instance, the library that talked to ZERP has been through 2 version with as many configuration file formats.
 The hope is that this library will provide enough of a foundation, yet be flexible enough to handle future needs within IT at Zaber.
 
@@ -53,9 +53,9 @@ The bare minmum script might look something like this::
   initialize('example')
 
   # reach in and grab a configuration value
-  print "The email host is {}".format(config.email.host) 
+  print "The email host is {}".format(config.email.host)
 
-The initialize function is actually quite complex and allows for on-demand initialization of services and dependancies. 
+The initialize function is actually quite complex and allows for on-demand initialization of services and dependancies.
 Once the function is complete, the system should be prepared for usage in your application.
 
 The simple example here, it only seeks loads the ``~/izaber.yaml`` into the ``config`` object.
@@ -77,13 +77,13 @@ If a configuration like the following is given::
         data_path: '{{path}}/data'
         daily_report_path: '{{reports_path}}/{{date}}'
 
-There are 4 paths here ``path``, ``template_path``, ``data_path``, and ``reports_path``. 
+There are 4 paths here ``path``, ``template_path``, ``data_path``, and ``reports_path``.
 
 The one path that's really important is ``path``. This izaber services will assume that this directory is the script's home directory, things like log files will be automatically dumped into it.
 
 There's templating support via jinja2 that handles the ``{{keyword}}`` syntax. You can do more complex stuff with it too if you *really* want.
 
-When looking at ``reports_path``, the fully parsed path will become ``~/data/reports``. 
+When looking at ``reports_path``, the fully parsed path will become ``~/data/reports``.
 
 The entries do not need to be in any particular order, just that they don't end up referencing each other in a way that can't be resolved.
 
@@ -101,7 +101,7 @@ In code, accessing the directories is pretty straightforward::
   print paths.reports_path
 
   # Create a new file report
-  # This opens a write filehandle to ~/data/reports/report_YYYY-MM-DD.csv 
+  # This opens a write filehandle to ~/data/reports/report_YYYY-MM-DD.csv
   rep_fh = paths.reports_path.open('report_{{date}}.csv','w')
   rep_fh.write('Hello There!')
   rep_fh.close()
@@ -147,7 +147,7 @@ Then, the code can look something like this::
   from izaber.templates import parse, parsestr
 
   # Initialize the library, load the config, inform the system that the application key is 'example'
-  initialize('example2') 
+  initialize('example2')
 
   # Load, parse and print the template located at ~/templates/example.html
   print parse('{{path}}/templates/example.html',key1='value1',key2='value2')
@@ -195,7 +195,7 @@ How to request to have the overlay performed? A small change to the initializati
   print paths.reports_path
 
   # Create a new file report
-  # This opens a write filehandle to ~/data/example2reports/report_YYYY-MM-DD.csv 
+  # This opens a write filehandle to ~/data/example2reports/report_YYYY-MM-DD.csv
   rep_fh = paths.reports_path.open('report_{{date}}.csv','w')
   rep_fh.write('Hello There')
   rep_fh.close()
@@ -234,7 +234,7 @@ To configure, amend the configuration to look like this::
       paths:
           path: '~/test'
 
-In code, to tell the initialize script to reference the test environment, the previous example can be amended to:: 
+In code, to tell the initialize script to reference the test environment, the previous example can be amended to::
 
   #!/usr/bin/python
 
@@ -242,18 +242,18 @@ In code, to tell the initialize script to reference the test environment, the pr
   from izaber.paths import paths
 
   # Initialize the library, load the config, inform the system that the application key is 'example2'
-  initialize('example2',environment='test') 
+  initialize('example2',environment='test')
 
   # Show the reports_path
   print paths.reports_path
 
   # Create a new file report
-  # This opens a write filehandle to ~/test/data/example2reports/report_YYYY-MM-DD.csv 
+  # This opens a write filehandle to ~/test/data/example2reports/report_YYYY-MM-DD.csv
   rep_fh = paths.reports_path.open('report_{{date}}.csv','w')
   rep_fh.write('Hello There')
   rep_fh.close()
 
-The only difference was to update the call to ``initialize(...)`` to include ``environment='test'``. 
+The only difference was to update the call to ``initialize(...)`` to include ``environment='test'``.
 
 This tells the system to first search ``test`` environment for requisite data before looking at the ``default`` environment.
 
@@ -314,7 +314,7 @@ Using it then, is pretty straightforward. Here's an example that just logs when 
   from izaber.paths import paths
 
   # Initialize the library, load the config, inform the system that the application key is 'example'
-  initialize('example') 
+  initialize('example')
 
   # Log when we start
   log.info('Script started!')
@@ -337,7 +337,7 @@ Sending Emails
 
 Beyond opening files, it's also nice to be able to communicate. This example will bring in email and logging support.
 
-The configuration file will need information to the email server, which can be amended from the previous example like this:: 
+The configuration file will need information to the email server, which can be amended from the previous example like this::
 
   default:
     log:
@@ -371,7 +371,7 @@ The line ``from izaber.email import mailer`` will add the email subsystem to the
 
 The new line ``mailer.template_send('{{path}}/myemail.email')`` tells the imported mailer object to pull the template file located at ``{{path}}/myemail.email``, parse it and send it off to the recipient. The ``{{path}}`` is simply a shorthand to substitute the current application's path into it. In this case it would become ``~/myemail.email``.
 
-Upon sending the email to the recipient, the system will also log the *from*, *to*, *subject* and *datetime* to the global log file. 
+Upon sending the email to the recipient, the system will also log the *from*, *to*, *subject* and *datetime* to the global log file.
 By default the log is located at ``{{path}}/izaber.log``.
 
 The email template can look like a standard email except that it will be parsed via jinja2 first.
@@ -385,6 +385,62 @@ It should follow the same format that email.parser should like, something like t
   <h1>TEST!</h1>
 
   <p>This is just a test email sent from an iZaber script.</p>
+
+Since we like the ability to format our text, the body portion of the email will be treated as HTML. The library will also create a text-only alternative to allow more primitive clients readability.
+
+Sending Emails without a Template File
+--------------------------------------
+
+Sometimes, it's easier to simply send an email without needing to create a file template.
+
+The configuration file will is the same as the previous example which required the email server:
+
+  default:
+    log:
+        level: 10
+    paths:
+        path: '~'
+        template_path: '{{path}}/templates'
+        reports_path: '{{data_path}}/reports'
+        data_path: '{{path}}/data'
+        daily_report_path: '{{reports_path}}/{{date}}'
+    email:
+        host: 'mail.example.com'
+        from: 'automatedsender@example.com'
+        to: 'recipient@example.com'
+
+
+For the script it will look like the following::
+
+  #!/usr/bin/python
+
+  from izaber import initialize, config
+  from izaber.email import mailer
+
+  # Initialize the library, load the config, inform the system that the application key is 'example'
+  initialize('example')
+
+  # Load the templated email and send it
+  mailer.template_sendstr("""
+  From: {{config.email.from}}
+  To: {{config.email.to}}
+  Subject: Hi from automated script on {{date_iso}}
+
+  <h1>TEST!</h1>
+
+  <p>This is just a test email sent from an iZaber script.</p>
+  """.strip())
+
+The line ``from izaber.email import mailer`` will add the email subsystem to the library and initialize it upon encountering the ``initialize('example')``.
+
+The ``mailer.template_sendstr`` takes the inline template and arguments, converts it into an email object then sends the email off. Note that the ``strip()`` is at the end of the template buffer so that there are no stray linefeeds to confuse the parser.
+
+Upon sending the email to the recipient, the system will also log the *from*, *to*, *subject* and *datetime* to the global log file.
+By default the log is located at ``{{path}}/izaber.log``.
+
+The email template can look like a standard email except that it will be parsed via jinja2 first.
+
+It should follow the same format that email.parser should like.
 
 Since we like the ability to format our text, the body portion of the email will be treated as HTML. The library will also create a text-only alternative to allow more primitive clients readability.
 
@@ -422,7 +478,7 @@ The code, however, must be amended::
   from izaber.email import mailer
 
   # Initialize the library, load the config, inform the system that the application key is 'example'
-  initialize('example') 
+  initialize('example')
 
   # Get a message object
   msg = mailer.template_parse('{{path}}/myemail.email')
@@ -445,7 +501,7 @@ As scripting with emails can make a small embarassing situation and turn it into
 
 Instead of sending the email, the raw email will be logged to your system log.
 
-If you wish to isolate debugging behaviour to just the email module, update the configuration so ``config.email.debug`` is ``true``. 
+If you wish to isolate debugging behaviour to just the email module, update the configuration so ``config.email.debug`` is ``true``.
 
 If you want the debug mode enabled globally, you can set ``config.debug`` to ``true``.
 
