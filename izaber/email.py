@@ -36,6 +36,7 @@ class Mailer(object):
                 )
             )
             log.debug(msg.as_string())
+            return
 
         log.info(
             'Sent email "{}" from "{}" to {}'.format(
@@ -98,11 +99,15 @@ class Mailer(object):
             msg=msg,
         )
 
+    def template_parsestr(self,template,**tags):
+        tags['config'] = config.dict()
+        parsed_email = parsestr(template,**tags)
+        return self.message_fromstr(parsed_email)
+
     def template_parse(self,fpath,**tags):
         tags['config'] = config.dict()
         parsed_email = parse(fpath,**tags)
         return self.message_fromstr(parsed_email)
-
 
     def template_sendstr(self,template,**kwargs):
         msg = self.template_parsestr(template,**kwargs)
@@ -115,21 +120,33 @@ class Mailer(object):
             msg=msg
         )
 
-    def template_parsestr(self,template,**tags):
-        tags['config'] = config.dict()
-        parsed_email = parsestr(template,**tags)
-        return self.message_fromstr(parsed_email)
-
     def message_fromstr(self,parsed_email):
-        e = Parser().parsestr(parsed_email)
+        # Decompose the email into constituent parts first
+        elements = parsed_email.split('\n')
+        headers = []
+        content = []
+        state = 'headers'
+        for e in elements:
+            if state == 'headers':
+                if not e:
+                    state = 'content'
+                headers.append(e)
+            else:
+                content.append(e)
+
+        # Parse the headers
+        headers = u"\n".join(headers)+u"\n\n"
+        e = Parser().parsestr(headers)
+
+        # Reconstruct the email into mime formatted elements.
         msg = MIMEMultipart('mixed')
         for k,v in dict(e).iteritems():
             msg[k] = v
         msg_text = MIMEMultipart('alternative')
-        html = e.get_payload()
+        html = u"\n".join(content)
         text = BeautifulSoup(html,"html5lib").get_text()
-        msg_text.attach(MIMEText(text,'plain'))
-        msg_text.attach(MIMEText(html,'html'))
+        msg_text.attach(MIMEText(text,'plain',_charset='utf-8'))
+        msg_text.attach(MIMEText(html,'html',_charset='utf-8'))
         msg.attach(msg_text)
         return msg
 
