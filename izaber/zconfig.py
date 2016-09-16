@@ -84,17 +84,17 @@ class YAMLConfig(object):
             self._config_full_filname = None
             self._cfg = yaml.load(config_buffer)
         else:
-            self._config_full_filename = self.config_find() \
+            self.config_fpath = self.config_find() \
                                           or os.path.join(self._config_dirs[0], \
                                              self._config_filename)
 
             # check if config directory exists, and create if necessary
-            self._config_dir = os.path.dirname(self._config_full_filename)
+            self._config_dir = os.path.dirname(self.config_fpath)
             if not os.path.exists(self._config_dir):
                 os.makedirs(self._config_dir)
 
             try:
-                with open(self._config_full_filename,'r') as file_obj:
+                with open(self.config_fpath,'r') as file_obj:
                     self._cfg = yaml.load(file_obj)
             except IOError:
                 self._cfg = {}
@@ -211,12 +211,12 @@ class YAMLConfig(object):
     # write config to yaml file
     # ================================================
     def save(self):
-        if self._config_full_filename == None:
+        if self.config_fpath == None:
             raise Exception("Cannot save config when ")
-        file_obj = open(self._config_full_filename, 'w')
+        file_obj = open(self.config_fpath, 'w')
         yaml.dump(self._cfg, file_obj, default_flow_style=False)
         file_obj.close()
-        print("Yay!  Configuration saved to {}".format(self._config_full_filename))
+        print("Yay!  Configuration saved to {}".format(self.config_fpath))
 
 # Global shared YAML configuration
 config = YAMLConfig()
