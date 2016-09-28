@@ -26,6 +26,13 @@ class YAMLConfig(object):
     _cfg = None
     _cfg_merged = None
 
+    # ================================================
+    # constructor
+    # ================================================
+    def __init__(self,*args,**kwargs):
+        if args or kwargs:
+            self.load_config(*args,**kwargs)
+
     def __nonzero__(self):
         return self._cfg
 
@@ -55,19 +62,13 @@ class YAMLConfig(object):
         # No matches found
         return
 
-    # ================================================
-    # constructor
-    # ================================================
-    def __init__(self,*args,**kwargs):
-        if args or kwargs:
-            self.load_config(*args,**kwargs)
-
     def load_config( self,
                   config_filename=None,
                   config_dirs=None,
                   config_buffer=None,
+                  config_amend=None,
                   environment=None,
-                  overlays=None
+                  overlays=None,
                 ):
         # Does the actual work of loading
 
@@ -110,6 +111,10 @@ class YAMLConfig(object):
         self._overlays = overlays
         self.overlay_load()
 
+        # Amend the configurations if required
+        if config_amend:
+            self.cfg_amend_(config_amend)
+
     def overlay_load(self):
         _cfg_merged = copy.deepcopy(self._cfg.get('default',{}))
         if self._env not in self._cfg:
@@ -150,7 +155,6 @@ class YAMLConfig(object):
             self._cfg_merged[name] = v
         return DictObj(self,v)
 
-
     # ================================================
     # choose the environment
     # ================================================
@@ -161,56 +165,117 @@ class YAMLConfig(object):
                 self._cfg[self._env] = {}
         return self._env
 
-
     # ================================================
-    # run a basic wizard interface
+    # Configuration Amending/Extending
     # ================================================
-    def wizard(self, wizard_options):
-        for attribute in wizard_options:
-            # if needed, this would be a good place to check for existence of
-            # 'key' and 'prompt' and either 'default' or 'validate'
-            # in attribute
-            # for now we'll assume the wizard's not buggy
-            default = ''
+    def cfg_(self,cfg=None):
+        """
+        Getter/Setter of configuration data. This can be used
+        to update and modify the configuration file on the system
+        by new applications.
+        """
+        if cfg is None:
+            cfg = self._cfg
+        else:
+            self._cfg = cfg
+        self.overlay_load()
+        return cfg
 
-            # figure out the default value
-            # if it has already been set in the config, use that
-            # otherwise, use what's given in the wizard
-            if attribute['key'] in self._cfg[self._env]:
-                default = self._cfg[self._env][attribute['key']]
-            elif 'default' in attribute:
-                try:
-                    default = attribute['default']()
-                except TypeError:
-                    default = attribute['default']
+    def cfg_amend_(self,config_amend):
+        """ This will take a YAML configuration and load it into
+            the configuration file for furthur usage. The good part
+            about this method is that it doesn't clobber, only appends
+            when keys are missing.
 
-            if not default:
-                prompt = "{prompt}: ".format(**attribute)
-            else:
-                prompt = "{prompt} [{defaultval}]: ".format( \
-                        defaultval=default, \
-                        **attribute)
+            This should provide a value in dictionary format like:
 
-            # time to actually ask the user for input; use validation if given
-            if attribute.has_key('validate'):
-                while True:
-                    try:
-                        new_value = raw_input(prompt) or default
-                        if attribute['validate'](self, new_value):
-                            break
-                    except Exception as e:
-                        print(e)
-            else:
-                new_value = raw_input(prompt) or default
+            {
+              'default': {
+                'togglsync': {
+                  'dsn': 'sqlite:///zerp-toggl.db',
+                  'default': {
+                    'username': 'abced',
+                    'toggl_api_key': 'arfarfarf',
+                  },
+                  'dev': {
+                    'cache': False
+                  }
+               }
+            }
 
-            # save value to dictionary
-            self._cfg[self._env][attribute['key']] = new_value
+            OR at user's preference can also use yaml format:
+
+            default:
+              togglsync:
+                  dsn: 'sqlite:///zerp-toggl.db'
+                  default:
+                    username: 'abced'
+                    toggl_api_key: 'arfarfarf'
+                  dev:
+                    cache: False
+
+            Then the code will append the key/values where they may be
+            missing.
+
+            If there is a conflict between a dict key and a value, this
+            function will throw an exception.
+
+            IMPORTANT: after making the change to the configuration, 
+                       remember to save the changes with cfg.save_()
+
+        """
+        if not isinstance(config_amend,dict):
+            config_amend = yaml.load(config_amend)
+
+        def merge_dicts(source,target,breadcrumbs=None):
+            """
+            Function to update the configuration if required. Returns
+            True if a change was made.
+            """
+
+            changed = False
+
+            if breadcrumbs is None:
+                breadcrumbs = []
+
+            # Don't descend if we're not a dict
+            if not isinstance(source,dict):
+              return source
+
+            # Let's start iterating over things
+            for k,v in source.items():
+
+                # New key, simply add.
+                if k not in target:
+                    target[k] = v
+                    changed = True
+                    continue
+
+                # Not new key.... so is it a dict?
+                elif isinstance(target[k],dict):
+                    trail = breadcrumbs+[k]
+                    if isinstance(v,dict):
+                        return ( merge_dicts(v,target[k],trail) or changed )
+                    else:
+                        raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
+
+                else:
+                    trail = breadcrumbs+[k]
+                    if isinstance(v,dict):
+                        raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
+
+            return changed
+
+        if merge_dicts(new_cfg,self._cfg):
+            self.overlay_load()
+
+        return self._cfg
 
 
     # ================================================
     # write config to yaml file
     # ================================================
-    def save(self):
+    def save_(self):
         if self.config_fpath == None:
             raise Exception("Cannot save config when ")
         file_obj = open(self.config_fpath, 'w')

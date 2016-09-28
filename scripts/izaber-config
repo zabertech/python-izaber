@@ -1,16 +1,40 @@
 #!/usr/bin/python
 
 """
+Manage the izaber.yaml configuration file
 
+Usage:
+  izaber-config show
+  izaber-config ship new <name>...
+  izaber-config ship <name> move <x> <y> [--speed=<kn>]
+  izaber-config ship shoot <x> <y>
+  izaber-config mine (set|remove) <x> <y> [--moored|--drifting]
+  izaber-config -h | --help
+  izaber-config --version
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+  --speed=<kn>  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
 
 """
 
 import yaml
 import docopt
+import pprint
 
-from izaber import config
+from izaber import initialize,config
 
+def do_show(args):
+    pprint.pprint(config._cfg)
+    print yaml.dump(config._cfg, default_flow_style=False)
 
+initialize('izaber-config')
 
-
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__, version='Configuration Manipulator')
+    if args['show']:
+        do_show(args)
 

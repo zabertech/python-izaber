@@ -5,6 +5,8 @@ import imp
 from izaber.startup import initialize, app_config
 from izaber.zconfig import config
 
+__version__ = '1.01'
+
 class IZaberFinder(object):
 
     def find_module(self, module_name, package_path=None):
