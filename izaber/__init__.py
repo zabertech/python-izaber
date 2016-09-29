@@ -5,7 +5,7 @@ import imp
 from izaber.startup import initialize, app_config
 from izaber.zconfig import config
 
-__version__ = '1.01'
+__version__ = '1.02'
 
 class IZaberFinder(object):
 

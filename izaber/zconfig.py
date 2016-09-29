@@ -33,6 +33,14 @@ class YAMLConfig(object):
         if args or kwargs:
             self.load_config(*args,**kwargs)
 
+    # ================================================
+    # helpers
+    # ================================================
+    def __repr__(self):
+        """ Returns the YAML representation of the configuration
+        """
+        return yaml.dump(self._cfg, default_flow_style=False)
+
     def __nonzero__(self):
         return self._cfg
 
@@ -113,7 +121,7 @@ class YAMLConfig(object):
 
         # Amend the configurations if required
         if config_amend:
-            self.cfg_amend_(config_amend)
+            self.config_amend_(config_amend)
 
     def overlay_load(self):
         _cfg_merged = copy.deepcopy(self._cfg.get('default',{}))
@@ -181,8 +189,26 @@ class YAMLConfig(object):
         self.overlay_load()
         return cfg
 
-    def cfg_amend_(self,config_amend):
-        """ This will take a YAML configuration and load it into
+    def config_amend_key_(self,key,value):
+        """ This will take a stringified key representation and value and
+        load it into the configuration file for furthur usage. The good
+        part about this method is that it doesn't clobber, only appends
+        when keys are missing.
+        """
+        cfg_i = self._cfg
+        keys = key.split('.')
+        last_key = keys.pop()
+        trail = []
+        for e in keys:
+            cfg_i.setdefault(e,{})
+            cfg_i = cfg_i[e]
+            trail.append(e)
+            if not isinstance(cfg_i,dict):
+                raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
+        cfg_i.setdefault(last_key,value)
+
+    def config_amend_(self,config_amend):
+        """ This will take a YAML or dict configuration and load it into
             the configuration file for furthur usage. The good part
             about this method is that it doesn't clobber, only appends
             when keys are missing.
@@ -266,7 +292,116 @@ class YAMLConfig(object):
 
             return changed
 
-        if merge_dicts(new_cfg,self._cfg):
+        if merge_dicts(config_amend,self._cfg):
+            self.overlay_load()
+
+        return self._cfg
+
+
+    def config_update_key_(self,key,value):
+        """ This will take a stringified key representation and value and
+        load it into the configuration file for furthur usage.
+        This method will clobber existing entries allowing something like a
+        "reset"
+        """
+        cfg_i = self._cfg
+        keys = key.split('.')
+        last_key = keys.pop()
+        trail = []
+        for e in keys:
+            cfg_i.setdefault(e,{})
+            cfg_i = cfg_i[e]
+            trail.append(e)
+            if not isinstance(cfg_i,dict):
+                raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
+        cfg_i[last_key] = value
+
+    def config_update_(self,config_amend):
+        """ This will take a YAML or dict configuration and load it into
+            the configuration file for furthur usage.
+            This method will clobber existing entries allowing something like a
+            "reset"
+
+            This should provide a value in dictionary format like:
+
+            {
+              'default': {
+                'togglsync': {
+                  'dsn': 'sqlite:///zerp-toggl.db',
+                  'default': {
+                    'username': 'abced',
+                    'toggl_api_key': 'arfarfarf',
+                  },
+                  'dev': {
+                    'cache': False
+                  }
+               }
+            }
+
+            OR at user's preference can also use yaml format:
+
+            default:
+              togglsync:
+                  dsn: 'sqlite:///zerp-toggl.db'
+                  default:
+                    username: 'abced'
+                    toggl_api_key: 'arfarfarf'
+                  dev:
+                    cache: False
+
+            Then the code will append the key/values where they may be
+            missing.
+
+            If there is a conflict between a dict key and a value, this
+            function will throw an exception.
+
+            IMPORTANT: after making the change to the configuration, 
+                       remember to save the changes with cfg.save_()
+
+        """
+        if not isinstance(config_amend,dict):
+            config_amend = yaml.load(config_amend)
+
+        def merge_dicts(source,target,breadcrumbs=None):
+            """
+            Function to update the configuration if required. Returns
+            True if a change was made.
+            """
+
+            changed = False
+
+            if breadcrumbs is None:
+                breadcrumbs = []
+
+            # Don't descend if we're not a dict
+            if not isinstance(source,dict):
+              return source
+
+            # Let's start iterating over things
+            for k,v in source.items():
+
+                # New key, simply add.
+                if k not in target:
+                    target[k] = v
+                    changed = True
+                    continue
+
+                # Not new key.... so is it a dict?
+                elif isinstance(target[k],dict):
+                    trail = breadcrumbs+[k]
+                    if isinstance(v,dict):
+                        return ( merge_dicts(v,target[k],trail) or changed )
+                    else:
+                        raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
+
+                else:
+                    trail = breadcrumbs+[k]
+                    if isinstance(v,dict):
+                        raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
+
+            return changed
+
+        if merge_dicts(config_amend,self._cfg):
             self.overlay_load()
 
         return self._cfg
@@ -281,7 +416,7 @@ class YAMLConfig(object):
         file_obj = open(self.config_fpath, 'w')
         yaml.dump(self._cfg, file_obj, default_flow_style=False)
         file_obj.close()
-        print("Yay!  Configuration saved to {}".format(self.config_fpath))
+        return self.config_fpath
 
 # Global shared YAML configuration
 config = YAMLConfig()
