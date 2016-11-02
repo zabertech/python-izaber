@@ -87,7 +87,7 @@ class IZaberFinder(object):
                 return loader
 
         # Couldn't find it!
-        raise ImportError('Could not find {}'.format(module_name))
+        return
 
 class IZaberLoader(object):
 
