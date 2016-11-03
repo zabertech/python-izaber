@@ -2,10 +2,8 @@
 
 from setuptools import setup
 
-import izaber
-
 setup(name='izaber',
-      version=izaber.__version__,
+      version='1.00',
       description='Base load point for iZaber code',
       url='',
       author='Aki Mimoto',
