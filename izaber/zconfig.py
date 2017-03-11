@@ -42,7 +42,7 @@ class YAMLConfig(object):
         return yaml.dump(self._cfg, default_flow_style=False)
 
     def __nonzero__(self):
-        return self._cfg
+        return self._cfg or False
 
     def dict(self):
         return self._cfg_merged

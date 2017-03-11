@@ -7,6 +7,8 @@ import logging
 
 import jinja2
 
+from izaber.compat import *
+
 from izaber.startup import initializer, request_initialize, app_config
 from izaber import config
 
@@ -92,7 +94,7 @@ class DataDir(object):
         # Get the initial information
         path_templates = {}
         tags = {'path':path}
-        for k,v in kwargs.iteritems():
+        for k,v in kwargs.items():
             if re.search('_path$',k):
                 path_templates[k] = v
             else:
@@ -125,10 +127,10 @@ class DataDir(object):
             def __str__(self):
                 return str(self.path_tag(self.path_key,self.path_template))
 
-        for k,path_template in path_templates.iteritems():
+        for k,path_template in path_templates.items():
             tags[k] = SneakyString(k,path_template)
 
-        for k,path_template in path_templates.iteritems():
+        for k,path_template in path_templates.items():
             if k in resolved_paths: continue
             full_path = parse(path_template,**tags)
             resolved_paths[k] = Path(full_path,**tags)
@@ -139,7 +141,7 @@ class DataDir(object):
 
         # If any of the data directories need to be made, 
         # go ahead and do so
-        for k,path in self.paths.iteritems():
+        for k,path in self.paths.items():
             if not path.exists():
                 path.makedirs()
 

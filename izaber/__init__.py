@@ -5,7 +5,7 @@ import imp
 from izaber.startup import initialize, app_config
 from izaber.zconfig import config
 
-__version__ = '1.03'
+__version__ = '1.04'
 
 """
 This module does some magic! Without the following code it would
