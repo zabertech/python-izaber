@@ -1,11 +1,12 @@
 import sys
 import re
 import imp
+import traceback
 
 from izaber.startup import initialize, app_config
 from izaber.zconfig import config
 
-__version__ = '1.04'
+__version__ = '1.05'
 
 """
 This module does some magic! Without the following code it would
@@ -80,7 +81,10 @@ class IZaberFinder(object):
             return
 
         for prefix in self.prefixes:
-            if module_name.index(prefix) != 0:
+            try:
+                if module_name.index(prefix) != 0:
+                    continue
+            except ValueError:
                 continue
             loader = self.attempt_load(prefix,module_name)
             if loader:

@@ -102,11 +102,15 @@ class Mailer(object):
     def template_parsestr(self,template,**tags):
         tags['config'] = config.dict()
         parsed_email = parsestr(template,**tags)
+        if config.get('debug') or self.options.get('debug'):
+            log.debug(u"---------\n"+parsed_email+"\n--------\n")
         return self.message_fromstr(parsed_email)
 
     def template_parse(self,fpath,**tags):
         tags['config'] = config.dict()
         parsed_email = parse(fpath,**tags)
+        if config.get('debug') or self.options.get('debug'):
+            log.debug(u"---------\n"+parsed_email+"\n--------\n")
         return self.message_fromstr(parsed_email)
 
     def template_sendstr(self,template,**kwargs):
