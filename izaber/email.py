@@ -15,7 +15,8 @@ from email import encoders
 from bs4 import BeautifulSoup
 
 from izaber import config, app_config
-from izaber.startup import initializer
+from izaber.startup import request_initialize, initializer
+from izaber.compat import *
 from izaber.paths import paths
 from izaber.templates import parse, parsestr
 
@@ -144,7 +145,7 @@ class Mailer(object):
 
         # Reconstruct the email into mime formatted elements.
         msg = MIMEMultipart('mixed')
-        for k,v in dict(e).iteritems():
+        for k,v in dict(e).items():
             msg[k] = v
         msg_text = MIMEMultipart('alternative')
         html = u"\n".join(content)
@@ -158,6 +159,7 @@ mailer = Mailer()
 
 @initializer('email')
 def load_config(**options):
+    request_initialize('config',**options)
     email_config = config.email.dict()
     mailer.load_config(**email_config)
 

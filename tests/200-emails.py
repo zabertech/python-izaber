@@ -13,7 +13,7 @@ class Test(unittest.TestCase):
         parsed = mailer.template_parse(
                       '{{template_path}}/test.email'
                   )
-        self.assertTrue(re.search('hello',parsed.as_string()))
+        self.assertTrue(re.search('test email',parsed.as_string()))
         result = mailer.template_send(
                       '{{template_path}}/test.email'
                   )

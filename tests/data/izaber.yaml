@@ -1,8 +1,6 @@
 default:
   log:
       level: 50
-      email:
-          level: 10
   paths:
       path: './data'
       template_path: '{{path}}/templates'

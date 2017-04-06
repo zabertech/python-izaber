@@ -6,7 +6,7 @@ import traceback
 from izaber.startup import initialize, app_config
 from izaber.zconfig import config
 
-__version__ = '1.05'
+__version__ = '1.06'
 
 """
 This module does some magic! Without the following code it would
