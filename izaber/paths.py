@@ -260,13 +260,17 @@ def initialize(**kwargs):
     #     custom_path1: encoded path
     #     ...
     #     custom_pathN: encoded path
-    #     
+    #
     # }
 
     # Setup the paths first
     paths_config = config.get('paths',{})
     paths_config.update(kwargs.get('paths',{}))
-    paths_config.setdefault('path','/tmp')
+    if 'path' not in paths_config:
+        for path_location in ['/tmp','/temp','.']:
+            if os.path.isdir(path_location):
+                paths_config.setdefault('path',path_location)
+                break
     paths.initialize(**paths_config)
 
     # Setup the logger
@@ -278,7 +282,7 @@ def initialize(**kwargs):
     #     format: logs formatter compatible format
     #     dateformat: how to display dates
     #     level: filter out everything above this level
-    #     
+    #
     #     custom_logger_name1: {
     #         filename: paths compatible filepath
     #         filemode: usually 'a'
@@ -309,28 +313,4 @@ def initialize(**kwargs):
 
     logging.basicConfig(**log_config)
     logging.getLogger().addHandler(logging.StreamHandler())
-
-if __name__ == '__main__':
-
-    test_config = {
-        'paths': {
-          'path': '/tmp',
-          'log_path': '/tmp/log'
-        },
-        'log': {
-          'filename': '{{log_path}}/app.log',
-          'custom': {
-            'filename': '{{log_path}}/custom.log'
-          }
-        }
-    }
-
-    import izaber.startup
-    izaber.startup.initialize(**test_config)
-
-    log.error("RECORD ME!\nthisis\na multiline\ndebug\nstatement")
-
-    custom_log = getLogger('custom')
-    custom_log.warn('THIS IS A WARNING')
-
 

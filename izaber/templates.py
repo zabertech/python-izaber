@@ -39,23 +39,3 @@ def parsestr(template,**tags):
 def initialize(**kwargs):
     request_initialize('config',**kwargs)
 
-if __name__ == '__main__':
-
-    test_config = {
-        'paths': {
-          'path': '/tmp',
-          'log_path': '/tmp/log'
-        },
-        'log': {
-          'filename': '{{log_path}}/app.log',
-          'custom': {
-            'filename': '{{log_path}}/custom.log'
-          }
-        }
-    }
-
-    import izaber.startup
-    izaber.startup.initialize(**test_config)
-
-
-

@@ -1,4 +1,5 @@
 import logging
+import os
 
 from izaber.startup import initializer, request_initialize
 from izaber.zconfig import config
@@ -23,7 +24,13 @@ def initialize(**kwargs):
     logging_config = config.get('logging',{})
     logging_config.update( kwargs.get('logging',{}) )
 
-    logging_config.setdefault('filename','/tmp/log.log')
+    # Find the best place to put the log
+    if 'filename' not in logging_config:
+        for log_location in ['/tmp','/temp','.']:
+            if not os.path.isdir(log_location):
+                continue
+            logging_config.setdefault('filename',os.path.join(log_location,'log.log'))
+            break
     logging_config.setdefault('filemode','a')
     logging_config.setdefault(
         'format',
@@ -34,6 +41,3 @@ def initialize(**kwargs):
 
     logging.basicConfig(**logging_config)
 
-if __name__ == '__main__':
-    import izaber.startup
-    izaber.startup.initialize()
