@@ -473,32 +473,32 @@ if __name__ == '__main__':
     a = DateTimeLocal('2017-01-01 09:03:01',context=context)
     b = DateTimeLocal('2017-01-11 21:51:32',context=context)
 
-    print a.local_str()
-    print ">",a.utc_str()
+    print(a.local_str())
+    print(">",a.utc_str())
 
-    print b.local_str()
-    print ">",b.utc_str()
+    print(b.local_str())
+    print(">",b.utc_str())
 
     r = TimeRange(a,b)
-    print "Local day difference",r.local_days()
-    print "UTC day difference",r.utc_days()
+    print("Local day difference",r.local_days())
+    print("UTC day difference",r.utc_days())
 
     for c in r.local_chunks():
-        print c.local_str()
+        print(c.local_str())
 
 
     d = Date('2018-02-16',context=context)
-    print d
-    print d.local_start_time().local_str()
-    print d.utc_end_time().local_str()
+    print(d)
+    print(d.local_start_time().local_str())
+    print(d.utc_end_time().local_str())
 
-    print "Trying UTC changes"
+    print("Trying UTC changes")
     d = DateTimeUTC(u'2018-03-01T22:05:13+00:00',context)
-    print d.utc_str()
-    print d.local_str()
+    print(d.utc_str())
+    print(d.local_str())
 
 
     d = DateTimeUTC(u'2018-03-01T22:05:13+00:00',context)
-    print d.utc_str()
-    print d.local_str()
+    print(d.utc_str())
+    print(d.local_str())
 
