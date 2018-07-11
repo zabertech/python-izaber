@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='izaber',
-      version='1.07',
+      version='1.08',
       description='Base load point for iZaber code',
       author='Aki Mimoto',
       url = 'https://github.com/zabertech/python-izaber',
@@ -19,6 +19,7 @@ setup(name='izaber',
           'pytz',
           'python-dateutil',
           'appdirs',
+          'six',
           'Jinja2',
           'setuptools',
       ],
