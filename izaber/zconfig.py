@@ -281,7 +281,8 @@ class YAMLConfig(object):
                 elif isinstance(target[k],dict):
                     trail = breadcrumbs+[k]
                     if isinstance(v,dict):
-                        return ( merge_dicts(v,target[k],trail) or changed )
+                        if merge_dicts(v,target[k],trail):
+                            changed = True
                     else:
                         raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
 
@@ -390,7 +391,8 @@ class YAMLConfig(object):
                 elif isinstance(target[k],dict):
                     trail = breadcrumbs+[k]
                     if isinstance(v,dict):
-                        return ( merge_dicts(v,target[k],trail) or changed )
+                        if merge_dicts(v,target[k],trail):
+                            changed = True
                     else:
                         raise Exception('.'.join(trail) + ' has conflicting dict/scalar types!')
 
