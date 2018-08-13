@@ -25,6 +25,9 @@ def initialize(name,**kwargs):
                 if result:
                     kwargs = result
 
+        # Was getting a weird error with flask where
+        # kwargs become None
+        if not kwargs: kwargs = {}
         kwargs = request_initialize(key,**kwargs)
         initialization_rack[key] = None
 

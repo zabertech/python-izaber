@@ -79,7 +79,7 @@ class File(Path):
     def open(self,*args,**kwargs):
         self.file_handle = open(self.full_fpath,*args,**kwargs)
         return self
-        
+
     def __getattr__(self,k):
         return getattr(self.file_handle,k)
 
@@ -145,9 +145,10 @@ class DataDir(object):
             if not path.exists():
                 path.makedirs()
 
-    def full_fpath(self,fpath):
+    def full_fpath(self,fpath,**kwargs):
         tags = dict(self.tags)
         tags.update(self.paths)
+        tags.update(kwargs)
         return parse(fpath,**tags)
 
     def file_get(self, fname,**kwargs):
