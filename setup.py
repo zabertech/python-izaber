@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='izaber',
-      version='1.20180813',
+      version='1.20190203',
       description='Base load point for iZaber code',
       author='Aki Mimoto',
       url = 'https://github.com/zabertech/python-izaber',
