@@ -421,32 +421,32 @@ if __name__ == '__main__':
     a = DateTimeLocal('2017-01-01 09:03:01',tz_name=tz_name)
     b = DateTimeLocal('2017-01-11 21:51:32',tz_name=tz_name)
 
-    print a.local_str()
-    print ">",a.utc_str()
+    six._print(a.local_str())
+    six._print(">",a.utc_str())
 
-    print b.local_str()
-    print ">",b.utc_str()
+    six._print(b.local_str())
+    six._print(">",b.utc_str())
 
     r = TimeRange(a,b)
-    print "Local day difference",r.local_days()
-    print "UTC day difference",r.utc_days()
+    six._print("Local day difference",r.local_days())
+    six._print("UTC day difference",r.utc_days())
 
     for c in r.local_chunks():
-        print c.local_str()
+        six._print(c.local_str())
 
 
     d = Date('2018-02-16',tz_name=tz_name)
-    print d
-    print d.local_start_time().local_str()
-    print d.utc_end_time().local_str()
+    six._print(d)
+    six._print(d.local_start_time().local_str())
+    six._print(d.utc_end_time().local_str())
 
-    print "Trying UTC changes"
+    six._print("Trying UTC changes")
     d = DateTimeUTC(u'2018-03-01T22:05:13+00:00',tz_name)
-    print d.utc_str()
-    print d.local_str()
+    six._print(d.utc_str())
+    six._print(d.local_str())
 
 
     d = DateTimeUTC(u'2018-03-01T22:05:13+00:00',tz_name)
-    print d.utc_str()
-    print d.local_str()
+    six._print(d.utc_str())
+    six._print(d.local_str())
 
