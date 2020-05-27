@@ -22,6 +22,7 @@ setup(name='izaber',
           'six',
           'Jinja2',
           'setuptools',
+          'docopt',
       ],
       zip_safe=False)
 
