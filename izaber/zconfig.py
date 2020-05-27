@@ -126,7 +126,7 @@ class YAMLConfig(object):
     def overlay_load(self):
         _cfg_merged = copy.deepcopy(self._cfg.get('default',{}))
         if self._env not in self._cfg:
-            raise Exception("Could not find environment '%s' in configuration",self._env)
+            raise Exception("Could not find environment '%s' in configuration"%self._env)
         _cfg_merged = deep_merge(_cfg_merged,self._cfg[self._env])
         for overlay in self._overlays:
             _cfg_merged = deep_merge(_cfg_merged,overlay)
