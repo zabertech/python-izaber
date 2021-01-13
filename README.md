@@ -41,7 +41,7 @@ poetry shell
 
 And now it's possible to make changes to the code
 
-### Tests
+### Tests via CLI
 
 As we test on multiple versions of python, getting setup for tests is a bit annoying.
 
@@ -49,7 +49,7 @@ Running on Ubuntu, the setup process is to install the appropriate python versio
 
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt install python3.6 python3.7 python3.8 python3.9 libxml2-dev libxslt1-dev build-essential pypy3-dev python3.6-dev python3.7-dev python3.8-dev python3.9-dev
+sudo apt install python3.6 python3.7 python3.8 python3.9 libxml2-dev libxslt1-dev build-essential pypy3-dev python3.6-dev python3.7-dev python3.8-dev python3.9-dev libssl-dev
 ```
 
 Then running the tests becomes:
@@ -57,6 +57,10 @@ Then running the tests becomes:
 ```bash
 poetry run tox
 ```
+
+### Tests via Docker
+
+It's not always desireable to pollute the environment with multiple versions of python so a Dockerfile is provided for testing.
 
 ### Packaging
 
