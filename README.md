@@ -62,6 +62,11 @@ poetry run tox
 
 It's not always desireable to pollute the environment with multiple versions of python so a Dockerfile is provided for testing.
 
+```bash
+docker build -t tests-izaber .
+docker run tests-izaber
+```
+
 ### Packaging
 
 - Ensure that the `pyproject.toml` has the newest version.
