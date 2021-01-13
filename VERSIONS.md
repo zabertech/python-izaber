@@ -17,3 +17,6 @@
 2. Added missing dependancies:
     - `lxml`
     - `bs4` (Beautiful Soup used by the `izaber.email`)
+3. Migrated to using poetry for releases
+4. Created Docker based container for testing
+
