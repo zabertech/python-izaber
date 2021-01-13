@@ -17,9 +17,9 @@ class YAMLConfig(object):
     _app_author = 'Zaber'
     _config_filename = 'izaber.yaml'
     _config_dirs = [
-                    appdirs.user_data_dir(_app_name, _app_author),
-                    os.path.expanduser('~'),
                     '.',
+                    os.path.expanduser('~'),
+                    appdirs.user_data_dir(_app_name, _app_author),
                   ]
     _overlays = []
 
@@ -104,7 +104,7 @@ class YAMLConfig(object):
 
             try:
                 with open(self.config_fpath,'r') as file_obj:
-                    self._cfg = yaml.load(file_obj)
+                    self._cfg = yaml.full_load(file_obj)
             except IOError:
                 self._cfg = {}
 
@@ -251,7 +251,7 @@ class YAMLConfig(object):
 
         """
         if not isinstance(config_amend,dict):
-            config_amend = yaml.load(config_amend)
+            config_amend = yaml.full_load(config_amend)
 
         def merge_dicts(source,target,breadcrumbs=None):
             """

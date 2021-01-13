@@ -1,5 +1,10 @@
 import sys
 import re
+import pkg_resources
+
+__version__ = pkg_resources.get_distribution("izaber").version
+
+
 try:
     import importlib
 
@@ -99,8 +104,6 @@ import traceback
 
 from izaber.startup import initialize, app_config
 from izaber.zconfig import config
-
-__version__ = '1.20190209'
 
 """
 This module does some magic! Without the following code it would

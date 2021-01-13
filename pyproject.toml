@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "izaber"
+description = "Base load point for iZaber code"
+version = '1.20210111'
+authors = ["Aki Mimoto <aki@zaber.com>"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">= 2.7, < 4.0"
+PyYAML = "^5.3.1"
+pytz = "^2020.5"
+python-dateutil = "^2.8.1"
+appdirs = "^1.4.4"
+six = "^1.15.0"
+Jinja2 = "^2.11.2"
+docopt = "^0.6.2"
+beautifulsoup4 = "^4.9.3"
+lxml = "^4.6.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.6.11"
+tox = "^3.21.0"
+
