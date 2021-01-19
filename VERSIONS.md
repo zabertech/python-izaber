@@ -1,6 +1,6 @@
 # Versions
 
-## 1.20210111
+## 2.20210111
 
 1. Instead of searching for `izaber.yaml` in the following order:
     1. `appdirs.user_data_dir(_app_name, _app_author)`
