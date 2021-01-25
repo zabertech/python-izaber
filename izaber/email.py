@@ -149,7 +149,7 @@ class Mailer(object):
             msg[k] = v
         msg_text = MIMEMultipart('alternative')
         html = u"\n".join(content)
-        text = BeautifulSoup(html,"html5lib").get_text()
+        text = BeautifulSoup(html,"lxml").get_text()
         msg_text.attach(MIMEText(text,'plain',_charset='utf-8'))
         msg_text.attach(MIMEText(html,'html',_charset='utf-8'))
         msg.attach(msg_text)

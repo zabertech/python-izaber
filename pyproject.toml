@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "izaber"
+description = "Base load point for iZaber code"
+version = '2.20210111'
+authors = ["Aki Mimoto <aki@zaber.com>"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">=2.7,<3.0.0 || >=3.5.0,<4.0"
+PyYAML = "^5.3.1"
+pytz = "^2020.5"
+python-dateutil = "^2.8.1"
+appdirs = "^1.4.4"
+six = "^1.15.0"
+Jinja2 = "^2.11.2"
+docopt = "^0.6.2"
+
+# A list of all of the optional dependencies, some of which are included in the
+# below `email`. They can be opted into by apps.
+beautifulsoup4 = { version = "^4.9.3", optional = true }
+lxml = { version = "^4.6.2", optional = true }
+
+[tool.poetry.extras]
+email = ["beautifulsoup4", "lxml"]
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.6.11"
+tox = "^3.21.0"
+
