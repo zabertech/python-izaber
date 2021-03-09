@@ -20,7 +20,7 @@ API documentation, usage and examples can be found in the "docs" directory.
 
 This library is uploaded to PyPi. Installation for usage can be done with:
 
-`pip install python-iaber`
+`pip install python-izaber`
 
 ## Development
 
