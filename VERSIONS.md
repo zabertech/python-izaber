@@ -1,5 +1,14 @@
 # Versions
 
+## 2.20210919
+
+Update `pyproject.toml` to be a bit more strict about what python versions are being used:
+
+- `python`: 2.7, then 3.6 and up
+- `pyYAML`: >5.4
+- `pytz`: >2021.1 
+- `Jinja2`: >2.11.3
+
 ## 2.20210111
 
 1. Instead of searching for `izaber.yaml` in the following order:
