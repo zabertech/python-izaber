@@ -9,13 +9,13 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
-python = ">=2.7,<3.0.0 || >=3.5.0,<4.0"
-PyYAML = "^5.3.1"
-pytz = "^2020.5"
+python = ">=2.7,<3.0.0 || >=3.6.0,<4.0"
+PyYAML = "^5.4"
+pytz = "^2021.1"
 python-dateutil = "^2.8.1"
 appdirs = "^1.4.4"
 six = "^1.15.0"
-Jinja2 = "^2.11.2"
+Jinja2 = "^2.11.3"
 docopt = "^0.6.2"
 
 # A list of all of the optional dependencies, some of which are included in the
