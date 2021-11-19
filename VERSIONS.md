@@ -38,3 +38,7 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 ## 3.20211119-2
 
 1. Version of PyYAML set was unnecessarily high
+
+## 3.20211119-3
+
+1. Sigh. Was using `sys.args` rather than `sys.argv`

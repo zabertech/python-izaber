@@ -20,7 +20,7 @@ def initialize(name=None,**kwargs):
         that are hanging off of the system.
     """
     if name is None:
-        name = sys.args[0] or ''
+        name = sys.argv[0] or ''
     kwargs['name'] = name
     app_config.update(kwargs)
     for key, func in dict(initialization_rack).items():

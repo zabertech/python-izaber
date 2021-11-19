@@ -67,6 +67,13 @@ docker build -t tests-izaber .
 docker run tests-izaber
 ```
 
+To use the local copy of the library files, can do the following instead:
+
+```bash
+docker run --rm -v `pwd`:/python-izaber tests-izaber
+```
+
+
 ### Packaging
 
 - Ensure that the `pyproject.toml` has the newest version.
