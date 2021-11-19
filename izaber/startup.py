@@ -1,3 +1,5 @@
+import sys
+
 app_config = {}
 dependancies = {}
 initialization_rack = {}
@@ -13,7 +15,12 @@ def initializer(key,before=[]):
 
     return lambda f: rack(key,f)
 
-def initialize(name,**kwargs):
+def initialize(name=None,**kwargs):
+    """ Invokes the initialization code for all the izaber.* modules
+        that are hanging off of the system.
+    """
+    if name is None:
+        name = sys.args[0] or ''
     kwargs['name'] = name
     app_config.update(kwargs)
     for key, func in dict(initialization_rack).items():
@@ -32,6 +39,8 @@ def initialize(name,**kwargs):
         initialization_rack[key] = None
 
 def request_initialize(key,**kwargs):
+    """ Force the initialization of another module tagged via `key`
+    """
     if not initialization_rack[key]:
         return
     result = initialization_rack[key](**kwargs)
