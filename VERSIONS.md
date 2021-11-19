@@ -33,3 +33,8 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 
 1. Removed python 2.7 support
 2. No longer require argument to `initialize()`. This does mean at some point overlays will be required (no one used them anyways so it will not be missed)
+
+
+## 3.20211119-2
+
+1. Version of PyYAML set was unnecessarily high
