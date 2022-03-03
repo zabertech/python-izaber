@@ -151,7 +151,7 @@ class YAMLConfig(object):
             for tok in k.split("."):
                 ref = ref[tok]
             return ref
-        except (KeyError, TypeError):
+        except (KeyError, TypeError, AttributeError):
             # Finally, no match, so return default.
             return default
 
