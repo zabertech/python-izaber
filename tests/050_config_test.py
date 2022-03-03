@@ -22,6 +22,9 @@ def test_config():
     assert config.get('test.this.thing', 'nope') == 'hi!'
     assert config.get('not.this.thing', 'nope') == 'nope'
 
+    # Try a non-string key miss
+    assert config.get(1, 'nope') == 'nope'
+
 config_amend = """
 default:
     test:
