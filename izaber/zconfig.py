@@ -140,8 +140,20 @@ class YAMLConfig(object):
     # dealing with dynamic attributes
     # ================================================
     def get(self,k,default=None):
-        """ FIXME: support dot syntax here """
-        return self._cfg_merged.get(k,default)
+        # Try for a direct key match regardless of type.
+        try:
+            return self._cfg_merged[k]
+        except KeyError:
+            pass
+        # Try for a dot-notation match.
+        try:
+            ref = self._cfg_merged
+            for tok in k.split("."):
+                ref = ref[tok]
+            return ref
+        except (KeyError, TypeError):
+            # Finally, no match, so return default.
+            return default
 
     def __getattr__(self, name):
         if name not in self._cfg_merged:
