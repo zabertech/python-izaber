@@ -42,3 +42,8 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 ## 3.20211119-3
 
 1. Sigh. Was using `sys.args` rather than `sys.argv`
+
+## 3.20220303
+
+1. Add dot-notation support to zconfig.get
+
