@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export PATH="$HOME/.poetry/bin:$PATH"
-cd /python-izaber
+cd /src
 poetry install
 poetry update
 

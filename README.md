@@ -49,13 +49,14 @@ Running on Ubuntu, the setup process is to install the appropriate python versio
 
 ```bash
 sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt install python3.6 python3.7 python3.8 python3.9 libxml2-dev libxslt1-dev build-essential pypy3-dev python3.6-dev python3.7-dev python3.8-dev python3.9-dev libssl-dev
+sudo add-apt-repository ppa:pypy/ppa
+sudo apt install pypy3 python3.6 python3.7 python3.8 python3.9 libxml2-dev libxslt1-dev build-essential pypy3-dev python3.6-dev python3.7-dev python3.8-dev python3.9-dev libssl-dev
 ```
 
 Then running the tests becomes:
 
 ```bash
-poetry run tox
+poetry run nox
 ```
 
 ### Tests via Docker
@@ -70,7 +71,7 @@ docker run tests-izaber
 To use the local copy of the library files, can do the following instead:
 
 ```bash
-docker run --rm -v `pwd`:/python-izaber tests-izaber
+docker run --rm -v `pwd`:/src tests-izaber
 ```
 
 
