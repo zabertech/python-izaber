@@ -4,102 +4,96 @@ import pkg_resources
 
 __version__ = pkg_resources.get_distribution("izaber").version
 
+import importlib
 
-try:
-    import importlib
+# Check to see the library has the submodule we need
+class IZaberLoaderImportlib(object):
 
-    if not hasattr(sys,'frozen'):
-      raise Exception('Not in PyInstaller. Skipping on to imp based loads')
+    def __init__(self,spec,module_name,*args,**kwargs):
+        self.spec = spec
+        self.module_name = module_name
+        self.args = args
+        self.kwargs = kwargs
 
-    # Check to see the library has the submodule we need
-    class IZaberLoaderImportlib(object):
+    def load_module(self, module_name):
+        # In the case of pyinstaller, it seems to set sys.frozen
+        # we check for that and load the module directly
+        if hasattr(sys,'frozen'):
+            module = self.spec.loader.load_module(self.spec.name)
+            sys.modules[self.module_name] = module
+            sys.modules[module_name] = module
+            sys.modules[self.spec.name] = module
+        else:
+            module = importlib.util.module_from_spec(self.spec)
+            sys.modules[self.module_name] = module
+            sys.modules[module_name] = module
+            sys.modules[self.spec.name] = module
+            self.spec.loader.exec_module(module)
+        return module
 
-        def __init__(self,spec,module_name,*args,**kwargs):
-            self.spec = spec
-            self.module_name = module_name
-            self.args = args
-            self.kwargs = kwargs
+class IZaberFinderImportlib(importlib.abc.MetaPathFinder):
+    """ Attempts to finds the module that may be tucked into
+        a submodule.
+    """
 
-        def load_module(self, module_name):
-            # In the case of pyinstaller, it seems to set sys.frozen
-            # we check for that and load the module directly
-            if hasattr(sys,'frozen'):
-                module = self.spec.loader.load_module(self.spec.name)
-                sys.modules[self.module_name] = module
-                sys.modules[module_name] = module
-            else:
-                module = importlib.util.module_from_spec(self.spec)
-                sys.modules[self.module_name] = module
-                sys.modules[module_name] = module
-                module = module.__loader__.load_module(module_name)
-                sys.modules[self.module_name] = module
-                sys.modules[module_name] = module
-            return module
+    def __init__(self,prefixes=None):
+        super(IZaberFinderImportlib,self).__init__()
+        if prefixes is None:
+            prefixes = ['izaber.']
+        self.prefixes = prefixes
 
-    class IZaberFinderImportlib(importlib.abc.MetaPathFinder):
-        """ Attempts to finds the module that may be tucked into
-            a submodule.
-        """
-
-        def __init__(self,prefixes=None):
-            super(IZaberFinderImportlib,self).__init__()
-            if prefixes is None:
-                prefixes = ['izaber.']
-            self.prefixes = prefixes
-
-        def add_prefix(self,prefix):
-            self.prefixes.append(prefix+'.')
+    def add_prefix(self,prefix):
+        normalized_prefix = prefix+'.'
+        if normalized_prefix not in self.prefixes:
+            self.prefixes.append(normalized_prefix)
             self.prefixes.sort(key=lambda a:len(a),reverse=True)
 
-        def attempt_load(self,prefix,module_name):
-            # Extension modules are expected to be named:
-            #
-            # izaber_extensionname
-            #
-            # where extensionname is all alphabetical 
-            try:
-                target_module = re.sub(
-                              '^'+prefix,
-                              prefix.replace('.','_'),
-                              module_name,
-                          )
+    def attempt_load(self,prefix,module_name):
+        # Extension modules are expected to be named:
+        #
+        # izaber_extensionname
+        #
+        # where extensionname is all alphabetical 
+        try:
+            target_module = re.sub(
+                          '^'+prefix,
+                          prefix.replace('.','_'),
+                          module_name,
+                      )
 
-                found = None
-                spec = None
-                package_path = []
-                for e in target_module.split('.'):
-                    package = "_".join(package_path) or None
-                    spec = importlib.util.find_spec(e,package)
-                    package_path.append(e)
+            found = None
+            spec = None
+            package_path = []
+            for e in target_module.split('.'):
+                package = "_".join(package_path) or None
+                spec = importlib.util.find_spec(e,package)
+                package_path.append(e)
 
-                return IZaberLoaderImportlib(spec,module_name)
-            except ImportError:
-                return
-
-        def find_module(self, module_name, package_path=None):
-            # Only respond to izaber.* modules
-            try:
-                if module_name.index('izaber.') != 0:
-                    return
-            except:
-                return
-
-            for prefix in self.prefixes:
-                try:
-                    if module_name.index(prefix) != 0:
-                        continue
-                except ValueError:
-                    continue
-                loader = self.attempt_load(prefix,module_name)
-                if loader:
-                    return loader
-
-            # Couldn't find it!
+            return IZaberLoaderImportlib(spec,module_name)
+        except ImportError:
             return
 
-except:
-    import imp
-    importlib = False
+    def find_module(self, module_name, package_path=None):
+        # Only respond to izaber.* modules
+        try:
+            if module_name.index('izaber.') != 0:
+                return
+        except:
+            return
+
+        for prefix in self.prefixes:
+            try:
+                if module_name.index(prefix) != 0:
+                    continue
+            except ValueError:
+                continue
+            loader = self.attempt_load(prefix,module_name)
+            if loader:
+                return loader
+
+        # Couldn't find it!
+        return
+
 import traceback
 
 from izaber.startup import initialize, app_config
@@ -132,82 +126,7 @@ load of izaber.wamp.fuse)
 """
 
 
-class IZaberFinderImp(object):
-    """ Attempts to finds the module that may be tucked into
-        a submodule.
-    """
-
-    def __init__(self,prefixes=None):
-        if prefixes is None:
-            prefixes = ['izaber.']
-        self.prefixes = prefixes
-
-    def add_prefix(self,prefix):
-        self.prefixes.append(prefix+'.')
-        self.prefixes.sort(key=lambda a:len(a),reverse=True)
-
-    def attempt_load(self,prefix,module_name):
-        # Extension modules are expected to be named:
-        #
-        # izaber_extensionname
-        #
-        # where extensionname is all alphabetical 
-        try:
-            target_module = re.sub(
-                          '^'+prefix,
-                          prefix.replace('.','_'),
-                          module_name,
-                      )
-
-            found = None
-            package_path = None
-            for e in target_module.split('.'):
-                found = imp.find_module(e,package_path)
-                package_path = [found[1]]
-
-            return IZaberLoader(*found)
-        except ImportError:
-            return
-
-    def find_module(self, module_name, package_path=None):
-        # Only respond to izaber.* modules
-        try:
-            if module_name.index('izaber.') != 0:
-                return
-        except:
-            return
-
-        for prefix in self.prefixes:
-            try:
-                if module_name.index(prefix) != 0:
-                    continue
-            except ValueError:
-                continue
-            loader = self.attempt_load(prefix,module_name)
-            if loader:
-                return loader
-
-        # Couldn't find it!
-        return
-
-class IZaberLoader(object):
-
-    def __init__(self,*args,**kwargs):
-        self.args = args
-        self.kwargs = kwargs
-
-    def load_module(self, module_name):
-        return imp.load_module(module_name, *self.args,**self.kwargs)
-
-
-
-if importlib:
-  autoloader = IZaberFinderImportlib()
-  sys.meta_path.append(autoloader)
-
-else:
-  autoloader = IZaberFinderImp()
-  sys.meta_path.append(autoloader)
-
+autoloader = IZaberFinderImportlib()
+sys.meta_path.append(autoloader)
 
 

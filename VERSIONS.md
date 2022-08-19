@@ -47,3 +47,16 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 
 1. Add dot-notation support to zconfig.get
 
+## 3.20220815
+
+1. Move to using nox based testing framework
+2. Update module loader in `izaber/__init__.py` to use importlib (current) vs imp (deprecated)
+3. Improve Dockerfile
+4. Add Python 3.11 to tests
+5. Explicitly test magic submodule loading
+
+## 3.20220819
+
+1. Fix issues when `import a_b` and `import a.b` were being used
+
+

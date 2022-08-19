@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "izaber"
 description = "Base load point for iZaber code"
-version = '3.0.20220303'
+version = '3.0.20220819'
 authors = ["Aki Mimoto <aki@zaber.com>"]
 
 [build-system]
@@ -13,7 +13,8 @@ python = ">=3.6.0,<4.0"
 PyYAML = ">=5.3"
 pytz = ">=2021.1"
 python-dateutil = ">=2.8.1"
-appdirs = "^1.4.4"
+#appdirs = "^1.4.4"
+appdirs = ">=1.4.4"
 six = ">=1.15.0"
 Jinja2 = ">=2.11.3"
 docopt = ">=0.6.2"
@@ -28,5 +29,7 @@ email = ["beautifulsoup4", "lxml"]
 
 [tool.poetry.dev-dependencies]
 pytest = ">=4.6.11"
-tox = ">=3.21.0"
+beautifulsoup4 = ">=4.9.3"
+lxml = ">=4.6.2"
+
 
