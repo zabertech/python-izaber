@@ -55,5 +55,8 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 4. Add Python 3.11 to tests
 5. Explicitly test magic submodule loading
 
+## 3.20220819
+
+1. Fix issues when `import a_b` and `import a.b` were being used
 
 
