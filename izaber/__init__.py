@@ -22,10 +22,12 @@ class IZaberLoaderImportlib(object):
             module = self.spec.loader.load_module(self.spec.name)
             sys.modules[self.module_name] = module
             sys.modules[module_name] = module
+            sys.modules[self.spec.name] = module
         else:
             module = importlib.util.module_from_spec(self.spec)
             sys.modules[self.module_name] = module
             sys.modules[module_name] = module
+            sys.modules[self.spec.name] = module
             self.spec.loader.exec_module(module)
         return module
 
@@ -41,8 +43,10 @@ class IZaberFinderImportlib(importlib.abc.MetaPathFinder):
         self.prefixes = prefixes
 
     def add_prefix(self,prefix):
-        self.prefixes.append(prefix+'.')
-        self.prefixes.sort(key=lambda a:len(a),reverse=True)
+        normalized_prefix = prefix+'.'
+        if normalized_prefix not in self.prefixes:
+            self.prefixes.append(normalized_prefix)
+            self.prefixes.sort(key=lambda a:len(a),reverse=True)
 
     def attempt_load(self,prefix,module_name):
         # Extension modules are expected to be named:
