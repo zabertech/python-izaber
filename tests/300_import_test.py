@@ -17,6 +17,7 @@ def test_submodule():
     assert CHECKS3.get('loaded')
     assert CHECKS4.get('loaded')
     assert CHECKS3 == CHECKS4
+    assert CHECKS3['executed'] == 1
 
 initialize(config='data/izaber.yaml')
 
