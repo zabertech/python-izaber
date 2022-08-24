@@ -3,8 +3,12 @@
 from izaber import config, initialize
 from izaber.submodule import CHECKS
 from izaber_submodule import CHECKS as CHECKS2
-from izaber.submodule.subsubmodule import CHECKS as CHECKS3
-from izaber_submodule_subsubmodule import CHECKS as CHECKS4
+
+# Important! We must load the underscore version of the library
+# before the dotted syntax to trigger a load order event
+# that we want to test for
+from izaber_submodule_subsubmodule import CHECKS as CHECKS4, DATA as DATA2
+from izaber.submodule.subsubmodule import CHECKS as CHECKS3, DATA as DATA1
 
 def test_submodule():
 
@@ -18,6 +22,16 @@ def test_submodule():
     assert CHECKS4.get('loaded')
     assert CHECKS3 == CHECKS4
     assert CHECKS3['executed'] == 1
+    assert CHECKS4['executed'] == 1
+
+    # Are the variables the same?
+    CHECKS3['foo'] = 'bar'
+    CHECKS4['foo'] = 'baz'
+    assert CHECKS3['foo'] == CHECKS4['foo']
+    assert CHECKS4['foo'] == 'baz'
+
+    # Are objects the same?
+    assert id(DATA1) == id(DATA2)
 
 initialize(config='data/izaber.yaml')
 

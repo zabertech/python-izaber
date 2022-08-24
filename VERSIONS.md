@@ -59,4 +59,6 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 
 1. Fix issues when `import a_b` and `import a.b` were being used
 
+## 3.0.20220823
 
+1. Fix issues when `import a_b` is called before `import a.b`
