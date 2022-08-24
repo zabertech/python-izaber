@@ -7,6 +7,12 @@ CHECKS = {
   'executed': 0
 }
 
+class TestObject(dict):
+    def poke(self, val):
+        self['a'] = val
+
+DATA = TestObject()
+
 @initializer('subsubmodule')
 def load_config(**kwargs):
     request_initialize('config',**kwargs)

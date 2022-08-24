@@ -23,12 +23,18 @@ class IZaberLoaderImportlib(object):
             sys.modules[self.module_name] = module
             sys.modules[module_name] = module
             sys.modules[self.spec.name] = module
-        else:
-            module = importlib.util.module_from_spec(self.spec)
-            sys.modules[self.module_name] = module
-            sys.modules[module_name] = module
-            sys.modules[self.spec.name] = module
             self.spec.loader.exec_module(module)
+        else:
+            if self.spec.name in sys.modules:
+                module = sys.modules[self.spec.name]
+                sys.modules.setdefault(self.module_name, module)
+                sys.modules.setdefault(module_name, module)
+            else:
+                module = importlib.util.module_from_spec(self.spec)
+                sys.modules[self.module_name] = module
+                sys.modules[module_name] = module
+                sys.modules[self.spec.name] = module
+                self.spec.loader.exec_module(module)
         return module
 
 class IZaberFinderImportlib(importlib.abc.MetaPathFinder):
