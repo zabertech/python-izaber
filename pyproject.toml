@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "izaber"
 description = "Base load point for iZaber code"
-version = '3.0.20220823'
+version = '3.0.20220929'
 authors = ["Aki Mimoto <aki@zaber.com>"]
 
 [build-system]
