@@ -62,3 +62,22 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 ## 3.0.20220823
 
 1. Fix issues when `import a_b` is called before `import a.b`
+
+## 3.0.20220929
+
+1. For some reason the noxfile tests were not breaking when doing an `import izaber` on Python 3.11. When invoked manually we see:
+
+    ```python
+    Python 3.11.0rc1 (main, Aug  8 2022, 18:31:54) [GCC 9.4.0] on linux
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import izaber
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      File "/src/izaber/__init__.py", line 40, in <module>
+        class IZaberFinderImportlib(importlib.abc.MetaPathFinder):
+                                    ^^^^^^^^^^^^^
+    AttributeError: module 'importlib' has no attribute 'abc'. Did you mean: '_abc'?
+    ```
+
+    Tweaked to fix.
+

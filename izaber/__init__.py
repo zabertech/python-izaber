@@ -37,7 +37,8 @@ class IZaberLoaderImportlib(object):
                 self.spec.loader.exec_module(module)
         return module
 
-class IZaberFinderImportlib(importlib.abc.MetaPathFinder):
+from importlib import abc as il_abc
+class IZaberFinderImportlib(il_abc.MetaPathFinder):
     """ Attempts to finds the module that may be tucked into
         a submodule.
     """

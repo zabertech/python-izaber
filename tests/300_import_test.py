@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 from izaber import config, initialize
 from izaber.submodule import CHECKS
 from izaber_submodule import CHECKS as CHECKS2
