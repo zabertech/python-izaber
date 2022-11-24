@@ -81,3 +81,24 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 
     Tweaked to fix.
 
+## 3.0.20221124
+
+1. When an `izaber.*` module was being imported, if the module did not exist, the error was vague and non-useful. Amend to
+    to throw a `ModuleNotFoundError` that would allow the developer/user to identify what the issue might be
+
+    ```python
+    (izaber-py3.8) root@7ed4086c1bd9:/src/tests# python 300_import_test.py
+    Traceback (most recent call last):
+      File "300_import_test.py", line 43, in <module>
+        test_submodule()
+      File "300_import_test.py", line 36, in test_submodule
+        import izaber.nonexistant
+      File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+      File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+      File "<frozen importlib._bootstrap>", line 655, in _load_unlocked
+      File "<frozen importlib._bootstrap>", line 618, in _load_backward_compatible
+      File "/src/izaber/__init__.py", line 28, in load_module
+        if self.spec.name in sys.modules:
+    AttributeError: 'NoneType' object has no attribute 'name'
+    ```
+
