@@ -31,6 +31,12 @@ def test_submodule():
     # Are objects the same?
     assert id(DATA1) == id(DATA2)
 
+    # Let's import something that doesn't exist
+    try:
+        import izaber.nonexistant
+    except ModuleNotFoundError:
+        pass # this is the error we wish to see
+
 initialize(config='data/izaber.yaml')
 
 test_submodule()

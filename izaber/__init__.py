@@ -74,6 +74,8 @@ class IZaberFinderImportlib(il_abc.MetaPathFinder):
             for e in target_module.split('.'):
                 package = "_".join(package_path) or None
                 spec = importlib.util.find_spec(e,package)
+                if not spec:
+                    raise ModuleNotFoundError(f"No module named {module_name}")
                 package_path.append(e)
 
             return IZaberLoaderImportlib(spec,module_name)
