@@ -102,3 +102,7 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
     AttributeError: 'NoneType' object has no attribute 'name'
     ```
 
+## 30.0.20230207
+
+1. Noted by @chead in [Bug 11](https://github.com/zabertech/python-izaber/issues/11). `PyYAML` v6.0 requires `yaml.load` to have a second argument. Switched to using `safe_load` to fix the argument issue as well as a potential security issue.
+

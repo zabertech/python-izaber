@@ -91,7 +91,7 @@ class YAMLConfig(object):
 
         if config_buffer:
             self._config_full_filname = None
-            self._cfg = yaml.load(config_buffer)
+            self._cfg = yaml.safe_load(config_buffer)
         else:
             self.config_fpath = self.config_find() \
                                           or os.path.join(self._config_dirs[0], \
@@ -373,7 +373,7 @@ class YAMLConfig(object):
 
         """
         if not isinstance(config_amend,dict):
-            config_amend = yaml.load(config_amend)
+            config_amend = yaml.safe_load(config_amend)
 
         def merge_dicts(source,target,breadcrumbs=None):
             """
