@@ -32,14 +32,12 @@ A configuration file named "``izaber.yaml``" is expected in the home directory "
 The contents typically looks something similar to this::
 
   default:
-    log:
+    logging:
         level: 10
     email:
         host: mail.example.com
         from: automatedsender@example.com
         to: recipient@example.com
-    paths:
-        path: ~
 
 This configuration file will allow any iZaber based script to discover all the requisite options for things such as template and data files, connection parameters, and other options at a user-specific level. It also has the benefit of allowing sensitive data to be easily stored outside of the source directory preventing accidental commits of things such as passwords.
 
@@ -61,54 +59,6 @@ Once the function is complete, the system should be prepared for usage in your a
 The simple example here, it only seeks loads the ``~/izaber.yaml`` into the ``config`` object.
 
 In the following section, more complex scripts are demonstrating some using the various services available.
-
-Paths
------
-
-Many scripts require various directories and files be it for data input or output. The paths service makes them easier to create and access.
-
-If a configuration like the following is given::
-
-  default:
-    paths:
-        path: '~'
-        template_path: '{{path}}/templates'
-        reports_path: '{{data_path}}/reports'
-        data_path: '{{path}}/data'
-        daily_report_path: '{{reports_path}}/{{date}}'
-
-There are 4 paths here ``path``, ``template_path``, ``data_path``, and ``reports_path``.
-
-The one path that's really important is ``path``. This izaber services will assume that this directory is the script's home directory, things like log files will be automatically dumped into it.
-
-There's templating support via jinja2 that handles the ``{{keyword}}`` syntax. You can do more complex stuff with it too if you *really* want.
-
-When looking at ``reports_path``, the fully parsed path will become ``~/data/reports``.
-
-The entries do not need to be in any particular order, just that they don't end up referencing each other in a way that can't be resolved.
-
-In code, accessing the directories is pretty straightforward::
-
-  #!/usr/bin/python
-
-  from izaber import initialize, config
-  from izaber.paths import paths
-
-  # Initialize the library, load the config, inform the system that the application key is 'example'
-  initialize('example')
-
-  # Show the reports_path
-  print paths.reports_path
-
-  # Create a new file report
-  # This opens a write filehandle to ~/data/reports/report_YYYY-MM-DD.csv
-  rep_fh = paths.reports_path.open('report_{{date}}.csv','w')
-  rep_fh.write('Hello There!')
-  rep_fh.close()
-
-The initialization will load the directories and prepare them for use. Be aware that paths are automatically created when the initialization takes place. That is, the system will calculate the list of paths then perform an os.makedirs on each one.
-
-The path also become an accessible property in the paths object. With a path object, you can perform actions such as file opens relative to that directory path.
 
 Templates
 ---------
@@ -267,15 +217,8 @@ This library hooks into Python's ``logging`` service and comes along when using 
 If we wanted to see all logging for all levels (normally the library is set to only report warnings and more urgent messages) we can amend the configuration file so::
 
   default:
-    log:
+    logging:
         level: 10
-    paths:
-        path: '~'
-        template_path: '{{path}}/templates'
-        reports_path: '{{data_path}}/reports'
-        data_path: '{{path}}/data'
-        daily_report_path: '{{reports_path}}/{{date}}'
-
 
 The numeric level values correspond so:
 
@@ -325,7 +268,7 @@ Using it then, is pretty straightforward. Here's an example that just logs when 
   # And log completion
   log.debug('Script ended!')
 
-Upon execution, the ``log.info('...')`` will cause the logger to append an informational message to a log file located at ``{{path}}/izaber.log``, which in this case would be ``~/izaber.log``.
+Upon execution, the ``log.info('...')`` will cause the logger to append an informational message to a log file located at ``~/izaber.log``.
 
 Just before completion, the ``log.debug('...')`` will request the logger to append a debug message to the log file.
 
@@ -340,7 +283,7 @@ Beyond opening files, it's also nice to be able to communicate. This example wil
 The configuration file will need information to the email server, which can be amended from the previous example like this::
 
   default:
-    log:
+    logging:
         level: 10
     paths:
         path: '~'
@@ -396,7 +339,7 @@ Sometimes, it's easier to simply send an email without needing to create a file 
 The configuration file will is the same as the previous example which required the email server:
 
   default:
-    log:
+    logging:
         level: 10
     paths:
         path: '~'
@@ -436,7 +379,7 @@ The line ``from izaber.email import mailer`` will add the email subsystem to the
 The ``mailer.template_sendstr`` takes the inline template and arguments, converts it into an email object then sends the email off. Note that the ``strip()`` is at the end of the template buffer so that there are no stray linefeeds to confuse the parser.
 
 Upon sending the email to the recipient, the system will also log the *from*, *to*, *subject* and *datetime* to the global log file.
-By default the log is located at ``{{path}}/izaber.log``.
+By default the log is located at ``~/log.log``.
 
 The email template can look like a standard email except that it will be parsed via jinja2 first.
 
@@ -457,8 +400,6 @@ To do that, the configuration file can remain the same as the above example in `
         host: mail.example.com
         from: automatedsender@example.com
         to: recipient@example.com
-    paths:
-        path: ~
 
 The email too, can be left as-is in ``~/myemail.email``::
 
@@ -509,7 +450,7 @@ For example the previous examples' configuration file could be modified to look 
 
   default:
     debug: true
-    log:
+    logging:
         level: 10
     email:
         debug: true
