@@ -24,8 +24,6 @@ def initialize(**kwargs):
     logging_config = config.get('logging',{})
     logging_config.update( kwargs.get('logging',{}) )
 
-    import pprint
-    print("!!!!! LOGGING CONFIG!", pprint.pformat(logging_config))
     # We only activate logging if the logging section has
     # configuration. This allows users to configure their
     # own logger as desired
