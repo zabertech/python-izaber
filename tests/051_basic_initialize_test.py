@@ -7,4 +7,5 @@ def test_config():
     # Load without any arguments. This was throwing an error previously
     initialize()
 
-test_config()
+if __name__ == "__main__":
+    test_config()

@@ -7,6 +7,11 @@ from izaber.templates import parse
 from izaber.email import mailer
 
 def test_email():
+    initialize(
+        name='overlay_test',
+        config='data/izaber.yaml'
+    )
+
     parsed = mailer.template_parse(
                   '{{template_path}}/test.email'
               )
@@ -17,9 +22,6 @@ def test_email():
               )
 
 
-initialize(
-    name='overlay_test',
-    config='data/izaber.yaml'
-)
-test_email()
+if __name__ == "__main__":
+    test_email()
 

@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import os.path
 import smtplib
 import logging
-import pkg_resources
 
 from email.parser import Parser
 from email.mime.multipart import MIMEMultipart

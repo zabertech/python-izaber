@@ -9,6 +9,10 @@ from izaber_submodule_subsubmodule import CHECKS as CHECKS4, DATA as DATA2
 from izaber.submodule.subsubmodule import CHECKS as CHECKS3, DATA as DATA1
 
 def test_submodule():
+    initialize(
+        config = 'data/izaber.yaml',
+        force = True,
+    )
 
     # This validates that izaber_submodules loads
     assert CHECKS2.get('loaded')
@@ -37,7 +41,6 @@ def test_submodule():
     except ModuleNotFoundError:
         pass # this is the error we wish to see
 
-initialize(config='data/izaber.yaml')
-
-test_submodule()
+if __name__ == "__main__":
+    test_submodule()
 

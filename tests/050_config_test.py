@@ -3,6 +3,24 @@
 from izaber import config, initialize
 
 def test_config():
+    config_amend = """
+    default:
+        test:
+            this:
+                thing: 'hi!'
+    """
+
+    initialize(
+        name='overlay_test',
+        config={
+            'config_filename': 'data/izaber.yaml',
+            'config_amend': config_amend,
+        },
+        email={
+            'explicit': 'done!'
+        },
+        force=True,
+    )
 
     # Check that basic configuration options are being respected
     assert config.email.host == 'localhost'
@@ -25,22 +43,7 @@ def test_config():
     # Try a non-string key miss
     assert config.get(1, 'nope') == 'nope'
 
-config_amend = """
-default:
-    test:
-        this:
-            thing: 'hi!'
-"""
 
-initialize(
-    name='overlay_test',
-    config={
-        'config_filename': 'data/izaber.yaml',
-        'config_amend': config_amend,
-    },
-    email={
-        'explicit': 'done!'
-    }
-)
-test_config()
+if __name__ == "__main__":
+    test_config()
 

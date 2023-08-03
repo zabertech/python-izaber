@@ -29,9 +29,13 @@ COMMANDS:
         This will launch the nexus in the current environment without using docker
         Useful when you're in the container itself or are developing locally
 
+  shell
+        This runs docker exec -ti $CONTAINER_NAME bash to allow shelling into a container
+      
   login
         This runs docker exec -ti $CONTAINER_NAME bash to allow "logging in" to a container
-      
+        Alias for shell
+
   root
         This runs docker exec -ti -u root $CONTAINER_NAME bash to allow "logging in" to a
             container as root
@@ -44,7 +48,7 @@ HELP
 
 build_docker_image () {
   echo "Creating the ${IMAGE_NAME} docker image"
-  docker build -t $IMAGE_NAME .
+  docker build --progress plain -t $IMAGE_NAME . 
 }
 
 upsert_docker_image () {
@@ -69,7 +73,7 @@ launch_container () {
     echo "Started ${CONTAINER_NAME}."
 }
 
-login() {
+shell () {
   if [[ "$(docker inspect ${CONTAINER_NAME} 2> /dev/null)" == "[]" ]]; then
     upsert_docker_image
     INVOKE_COMMAND="/bin/bash"
@@ -104,8 +108,12 @@ else
           $INVOKE_COMMAND
         ;;
 
-    login) login
+    login) shell
         ;;
+
+    shell) shell
+        ;;
+
 
     root) docker exec -ti -u root $CONTAINER_NAME /bin/bash
         ;;
@@ -116,4 +124,4 @@ else
        ;;
   esac
 fi
-
+ 
