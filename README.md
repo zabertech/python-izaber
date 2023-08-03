@@ -74,7 +74,6 @@ To use the local copy of the library files, can do the following instead:
 docker run --rm -v `pwd`:/src tests-izaber
 ```
 
-
 ### Packaging
 
 - Ensure that the `pyproject.toml` has the newest version.

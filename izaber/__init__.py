@@ -1,10 +1,14 @@
 import sys
 import re
-import pkg_resources
-
-__version__ = pkg_resources.get_distribution("izaber").version
-
 import importlib
+
+try:
+    from importlib.metadata import version
+    __version__ = version("izaber")
+# For older versions of python
+except:
+    import pkg_resources
+    __version__ = pkg_resources.get_distribution("izaber").version
 
 # Check to see the library has the submodule we need
 class IZaberLoaderImportlib(object):
@@ -36,6 +40,15 @@ class IZaberLoaderImportlib(object):
                 sys.modules[self.spec.name] = module
                 self.spec.loader.exec_module(module)
         return module
+
+class IZaberSpec:
+    def __init__(self, spec, module_name):
+        self.spec = spec
+        self.module_name = module_name
+        self.loader = IZaberLoaderImportlib(spec, module_name)
+
+    def __getattr__(self, k):
+        return getattr(self.spec, k)
 
 from importlib import abc as il_abc
 class IZaberFinderImportlib(il_abc.MetaPathFinder):
@@ -81,6 +94,38 @@ class IZaberFinderImportlib(il_abc.MetaPathFinder):
             return IZaberLoaderImportlib(spec,module_name)
         except ImportError:
             return
+
+    def find_spec(self, module_name, path=None, target=None):
+
+        for prefix in self.prefixes:
+            try:
+                if module_name.index(prefix) != 0:
+                    continue
+            except ValueError:
+                continue
+
+            try:
+                target_module = re.sub(
+                              '^'+prefix,
+                              prefix.replace('.','_'),
+                              module_name,
+                          )
+
+                found = None
+                spec = None
+                package_path = []
+                for e in target_module.split('.'):
+                    package = "_".join(package_path) or None
+                    spec = importlib.util.find_spec(e,package)
+                    if not spec:
+                        raise ModuleNotFoundError(f"No module named {module_name}")
+                    package_path.append(e)
+
+                return IZaberSpec(spec,module_name)
+            except ImportError:
+                return
+
+        return
 
     def find_module(self, module_name, package_path=None):
         # Only respond to izaber.* modules
@@ -136,6 +181,6 @@ load of izaber.wamp.fuse)
 
 
 autoloader = IZaberFinderImportlib()
-sys.meta_path.append(autoloader)
+sys.meta_path.insert(0, autoloader)
 
 

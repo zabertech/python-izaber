@@ -239,8 +239,9 @@ It's also possible to directly set other parameters here:
 ============= =============================
 Option        Description
 ============= =============================
+disable_internal   This will disable the auto provisioning of the logger if set to a truthy value
 level         filter out everything above this level
-filename      paths compatible filepath
+filename      paths compatible filepath. If set to '', the system will attempt to find a place to put the log. If not set, the system will use sys.stdout
 filemode      usually 'a'
 fileencoding  usually 'utf8'
 format        log format in logging.Formatter compatible format
@@ -268,7 +269,7 @@ Using it then, is pretty straightforward. Here's an example that just logs when 
   # And log completion
   log.debug('Script ended!')
 
-Upon execution, the ``log.info('...')`` will cause the logger to append an informational message to a log file located at ``~/izaber.log``.
+Upon execution, the ``log.info('...')`` will cause the logger to append an informational message to stdout (if ``filename`` is not set) and a log file located at ``~/izaber.log`` if ``filename`` is blank.
 
 Just before completion, the ``log.debug('...')`` will request the logger to append a debug message to the log file.
 

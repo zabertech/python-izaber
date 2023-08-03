@@ -102,3 +102,16 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
     AttributeError: 'NoneType' object has no attribute 'name'
     ```
 
+## 30.0.20230207
+
+1. Noted by @chead in [Bug 11](https://github.com/zabertech/python-izaber/issues/11). `PyYAML` v6.0 requires `yaml.load` to have a second argument. Switched to using `safe_load` to fix the argument issue as well as a potential security issue.
+
+## 30.1.20230803
+
+1. Made it so that logging module does not automatically create a `log.log` file
+    - Providing a path to `env.logging.filename` will log to that file
+    - If `env.logging` is present but no `filename` key, it will opt to send the data to stdout
+    - If no `env.logging` structure is present, it will simply not create the izaber log handler
+    - If `env.logging.disable_internal` is a true value, it will also simply not create the izaber log handler
+2. Added support for python 3.12 by tweaking the izaber module loader
+3. Cleanup docker image to not use root and ubuntu user instead

@@ -13,7 +13,7 @@ def build(session):
     PACKAGE_BUILT = True
     session.run("poetry", "build", )
 
-@nox.session(python=['pypy3', '3.6', '3.7', '3.8', '3.9', '3.10', '3.11' ])
+@nox.session(python=['pypy3', '3.6', '3.7', '3.8', '3.9', '3.10', '3.11', '3.12' ])
 def tests(session):
     global PACKAGE_BUILT
 
@@ -38,5 +38,5 @@ def tests(session):
     #session.install('pytest>=4.6.11','Faker>=13.3.4','passlib>=1.7.4')
 
     # Finally, run the tests
-    session.run("pytest")
+    session.run("pytest", "-n=auto", "--dist=each", "-v")
 
