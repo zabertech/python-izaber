@@ -8,7 +8,7 @@ import subprocess
 def run(*args, **kwargs):
     if sys.version_info.major == 3 and sys.version_info.minor == 6:
         res = subprocess.check_output(*args, **kwargs)
-        assert res
+        assert isinstance(res, bytes)
         return res.decode('utf-8')
     else:
         res = subprocess.run(*args, **kwargs, capture_output=True, text=True)
