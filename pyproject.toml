@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "izaber"
 description = "Base load point for iZaber code"
-version = '3.1.20230817'
+version = '3.1.20230928'
 authors = ["Aki Mimoto <aki@zaber.com>"]
 
 [build-system]
@@ -11,7 +11,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">=3.6.0,<4.0"
 # https://stackoverflow.com/questions/76708329/docker-compose-no-longer-building-image-attributeerror-cython-sources
-PyYAML = ">=5.3.0,!=5.4.1,!=6.0"
+PyYAML = ">=5.3.0,!=5.4.1,<=7.0"
 #PyYAML = ">=6.0.1"
 pytz = ">=2021.1"
 python-dateutil = ">=2.8.1"

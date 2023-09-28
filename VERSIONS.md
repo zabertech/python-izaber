@@ -119,3 +119,7 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 ## 3.1.20230817
 
 1. `python-xdist` should not be in dependancies (it is only for dev) as noted by @Hawk777
+
+## 3.1.20230928
+
+1. We don't anticipate any issues with PyYAML so let's loosen things up till the next major release
