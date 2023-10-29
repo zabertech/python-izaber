@@ -123,3 +123,9 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 ## 3.1.20230928
 
 1. We don't anticipate any issues with PyYAML so let's loosen things up till the next major release
+
+## 3.2.20231029
+
+1. Added ENV support for `izaber.yaml` which may be useful in Docker deployments
+  - Setting the `IZABER_YAML` ENV value to the same value as a normal `izaber.yaml`, it will be used instead if the file doesn't exist
+  - Setting the `IZABER_ENVIRONMENT` ENV value will be used if no explicit environment has been defined for `initialize` (using `initialize`'s `environment` argument will take precedence over `IZABER_ENVIRONMENT`)

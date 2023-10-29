@@ -7,21 +7,148 @@ import os
 import yaml
 import re
 import copy
+import sys
 
 from izaber.compat import *
 from izaber.startup import initializer, app_config
 from izaber.structs import DictObj, deep_merge
 
-class YAMLConfig(object):
+class ZConfigNotFound(Exception): pass
+
+class Serializer:
+    """ Serializer class, not a particularly complicated one but used
+        since we may opt need to do some transformations in certain cases.
+        By default we only support YAML since it'd be good not to have multiple
+        serialization formats running around
+    """
+
+    def loads(self, config_buffer):
+        return yaml.safe_load(config_buffer)
+
+    def dumps(self, data):
+        return yaml.dumps(data, default_flow_style=False)
+
+class Source:
+    """ Base class for YAML data source. Generally will be a file, however,
+        there are cases where we may opt to use another, alternate data sources
+        may be preferred (eg. ENV for docker)
+    """
+
+    serializer = None
+
+    def __init__(self):
+        self.serializer = Serializer()
+
+    def load(self, opts):
+        raise NotImplementedError(f"{self} does not implement `save`")
+
+    def save(self, data):
+        raise NotImplementedError(f"{self} does not implement `save`")
+
+class StringSource(Source):
+
+    def load(self, opts):
+        config_buffer = opts.get('config_buffer')
+        if not config_buffer:
+            raise ZConfigNotFound()
+
+        data = yaml.safe_load(config_buffer)
+        return data
+
+class FileSource(Source):
     _app_name = 'ZaberConfig'
     _app_author = 'Zaber'
+
     _config_filename = 'izaber.yaml'
     _config_dirs = [
                     '.',
                     os.path.expanduser('~'),
                     appdirs.user_data_dir(_app_name, _app_author),
                   ]
+
+    def config_find(self,config_dirs=None,config_filename=None):
+        """ Attempt to use the config dir/config_filenames to
+            locate the configuration file requested. Some folks
+            would prefer to keep their config in ~ where it's in
+            plain sight rather than the buried application
+            specific location
+        """
+
+        if config_filename is None:
+            config_filename = self._config_filename
+
+        if config_dirs is None:
+            config_dirs = self._config_dirs
+        else:
+            if isinstance(config_dirs,basestring):
+                config_dirs = [config_dirs]
+
+        for test_dir in config_dirs:
+            test_fpath = os.path.join(test_dir,config_filename)
+            if os.path.isfile(test_fpath):
+                return test_fpath
+
+        # No matches found
+        return
+
+    def load(self, opts):
+
+        # Setup defaults
+        config_filename = opts.get('config_filename')
+        if config_filename:
+            self._config_filename = config_filename
+
+        # Override config dirs if required
+        config_dirs = opts.get('config_dirs')
+        if config_dirs:
+            if isinstance(config_dirs,basestring):
+                self._config_dirs = [config_dirs]
+            else:
+                self._config_dirs = config_dirs
+
+        # Try and find the configuration location, otherwise try and just use the
+        # first entry
+        self.config_fpath = self.config_find() \
+                              or os.path.join(self._config_dirs[0], self._config_filename)
+
+        # check if config directory exists, and create if necessary
+        self._config_dir = os.path.dirname(self.config_fpath)
+        if not os.path.exists(self._config_dir):
+            os.makedirs(self._config_dir)
+
+        try:
+            with open(self.config_fpath,'r') as file_obj:
+                data = yaml.full_load(file_obj)
+        except IOError:
+            raise ZConfigNotFound()
+
+        return data
+
+    def save(self, data):
+        if self.config_fpath == None:
+            raise Exception("Cannot save config when ")
+        file_obj = open(self.config_fpath, 'w')
+        yaml.dump(data, file_obj, default_flow_style=False)
+        file_obj.close()
+        return self.config_fpath
+
+class ENVSource(Source):
+    _izaber_yaml_key = 'IZABER_YAML'
+
+    def load(self, opts):
+        config_buffer = os.environ.get(self._izaber_yaml_key)
+        if not config_buffer:
+            raise ZConfigNotFound()
+
+        data = yaml.safe_load(config_buffer)
+        return data
+
+
+class Config(object):
     _overlays = []
+
+    _sources = [ StringSource, FileSource, ENVSource ]
+    _source = None
 
     _cfg = None
     _cfg_merged = None
@@ -47,29 +174,6 @@ class YAMLConfig(object):
     def dict(self):
         return self._cfg_merged
 
-    def config_find(self,config_dirs=None,config_filename=None):
-        """ Attempt to use the config dir/config_filenames to
-            locate the configuration file requested. Some folks
-            would prefer to keep their config in ~ where it's in
-            plain sight rather than the buried application
-            specific location
-        """
-        if config_dirs is None:
-            config_dirs = self._config_dirs
-        else:
-            if isinstance(config_dirs,basestring):
-                config_dirs = [config_dirs]
-
-        if config_filename is None:
-            config_filename = self._config_filename
-        for test_dir in config_dirs:
-            test_fpath = os.path.join(test_dir,config_filename)
-            if os.path.isfile(test_fpath):
-                return test_fpath
-
-        # No matches found
-        return
-
     def load_config( self,
                   config_filename=None,
                   config_dirs=None,
@@ -78,39 +182,35 @@ class YAMLConfig(object):
                   environment=None,
                   overlays=None,
                 ):
-        # Does the actual work of loading
 
-        # Setup defaults
-        if config_filename:
-            self._config_filename = config_filename
-        if config_dirs:
-            if isinstance(config_dirs,basestring):
-                self._config_dirs = [config_dirs]
-            else:
-                self._config_dirs = config_dirs
-
-        if config_buffer:
-            self._config_full_filname = None
-            self._cfg = yaml.safe_load(config_buffer)
-        else:
-            self.config_fpath = self.config_find() \
-                                          or os.path.join(self._config_dirs[0], \
-                                             self._config_filename)
-
-            # check if config directory exists, and create if necessary
-            self._config_dir = os.path.dirname(self.config_fpath)
-            if not os.path.exists(self._config_dir):
-                os.makedirs(self._config_dir)
-
+        # Figure out where we're going to get our data from. We have
+        # several possible sources such as string, file, or environemt
+        # But due to how the code works, someone can add their own
+        # custom source for connectivity if needed
+        opts = dict(
+            config_filename=config_filename,
+            config_dirs=config_dirs,
+            config_buffer=config_buffer,
+        )
+        for source_class in self._sources:
+            # Try this source out for loading data
             try:
-                with open(self.config_fpath,'r') as file_obj:
-                    self._cfg = yaml.full_load(file_obj)
-            except IOError:
-                self._cfg = {}
+                source = source_class()
+                data = source.load(opts)
+                self._source = source
+                self._cfg = data
+                break
+
+            # Ignore only in the case of data not being found
+            # otherwise, there might be a legit error
+            except ZConfigNotFound:
+                pass
+        else:
+            raise Exception("No source for configuration found!")
 
         # initialize environment
         if environment == None:
-            environment = 'default'
+            environment = os.environ.get('IZABER_ENVIRONMENT') or 'default'
         self._env = environment
 
         # Apply the overlay if required
@@ -425,15 +525,11 @@ class YAMLConfig(object):
     # write config to yaml file
     # ================================================
     def save_(self):
-        if self.config_fpath == None:
-            raise Exception("Cannot save config when ")
-        file_obj = open(self.config_fpath, 'w')
-        yaml.dump(self._cfg, file_obj, default_flow_style=False)
-        file_obj.close()
-        return self.config_fpath
+        return self._source.save(self._cfg)
 
-# Global shared YAML configuration
-config = YAMLConfig()
+# Global shared configuration
+YAMLConfig = Config
+config = Config()
 
 @initializer('config')
 def initialize(**kwargs):
@@ -455,6 +551,9 @@ def initialize(**kwargs):
     # Overlay the subconfig
     if kwargs.get('name'):
         subconfig = config.get(kwargs.get('name'),{})
+        if subconfig:
+            print("Use of subconfigs is deprecated and will be removed in the next major version. "\
+                  "For help please contact IT", file=sys.stderr)
         config.overlay_add(subconfig)
 
     config.overlay_add(app_config)
