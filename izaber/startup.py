@@ -51,6 +51,62 @@ def initialize(name=None, **kwargs):
         kwargs = request_initialize(key, **kwargs)
         initialization_rack[key] = None
 
+    # This is real hacky
+    if kwargs.get('log_usage_to_file'):
+        import socket
+        import inspect
+        import datetime
+        from pathlib import Path
+        import socket
+
+        # Get orignal call frame and filename
+        stack = inspect.stack()
+        orig_frame = stack[-1]
+        orig_frame_file = Path(orig_frame.filename)
+        try:
+            # Get IP of machine, the connect address doesn't matter
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("10.255.255.255", 80))
+            ip_addr = s.getsockname()[0]
+            s.close()
+        except:
+            ip_addr = 'could not resolve'
+        try:
+            logfile = Path(f'{orig_frame_file}.log')
+            logfile_exists = logfile.exists()
+            if not logfile_exists:
+                logfile.touch()
+
+            wamp_user = ''
+            zerp_database = ''
+
+            #It's okay to import here because it's already been initialized
+            from .zconfig import config
+            config_env = config._env
+            config_dict = config._cfg_merged
+
+            if 'wamp' in initializer_lookup:
+                wamp_user = config_dict.get('wamp', {}).get('connection', {}).get('username', '')
+
+            if 'wamp_zerp' in initializer_lookup:
+                zerp_database = config_dict.get('wamp', {}).get('zerp', {}).get('database', '')
+
+            with open(logfile, 'a') as f:
+                if not logfile_exists:
+                    f.write('time, izaber environment, wamp_user, zerp_database, host, ip address, platform, python_version\n')
+                f.write('{}, {}, {}, {}, {}, {}, {}, {}\n'.format(
+                    datetime.datetime.now(),
+                    config_env,
+                    wamp_user,
+                    zerp_database,
+                    socket.gethostname(),
+                    ip_addr,
+                    sys.platform,
+                    sys.version.split(' ')[0]
+                ))
+        except Exception as e:
+            print(f"Something went wrong when trying to log usage to file. Error given: {e}")
+
 def request_initialize(key, **kwargs):
     """ Force the initialization of another module tagged via `key`
     """
@@ -66,4 +122,3 @@ def request_initialize(key, **kwargs):
 
     if replace_kwargs: return replace_kwargs
     return kwargs
-
