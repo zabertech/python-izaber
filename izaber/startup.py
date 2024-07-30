@@ -51,7 +51,9 @@ def initialize(name=None, **kwargs):
         kwargs = request_initialize(key, **kwargs)
         initialization_rack[key] = None
 
-    # This is real hacky
+    # Some of these steps are a bit hacky, accessing private variables
+    #  in ways they may not expected, but there isn't a better way without
+    #  intervention in multiple repositories
     if kwargs.get('log_usage_to_file'):
         import socket
         import inspect
