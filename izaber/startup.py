@@ -63,6 +63,7 @@ def initialize(name=None, **kwargs):
         stack = inspect.stack()
         orig_frame = stack[-1]
         orig_frame_file = Path(orig_frame.filename)
+
         try:
             # Get IP of machine, the connect address doesn't matter
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -71,12 +72,8 @@ def initialize(name=None, **kwargs):
             s.close()
         except:
             ip_addr = 'could not resolve'
-        try:
-            logfile = Path(f'{orig_frame_file}.log')
-            logfile_exists = logfile.exists()
-            if not logfile_exists:
-                logfile.touch()
 
+        try:
             wamp_user = ''
             zerp_database = ''
 
@@ -91,6 +88,8 @@ def initialize(name=None, **kwargs):
             if 'wamp_zerp' in initializer_lookup:
                 zerp_database = config_dict.get('wamp', {}).get('zerp', {}).get('database', '')
 
+            logfile = Path(f'{orig_frame_file}.log')
+            logfile_exists = logfile.exists()
             with open(logfile, 'a') as f:
                 if not logfile_exists:
                     f.write('time, izaber environment, wamp_user, zerp_database, host, ip address, platform, python_version\n')
