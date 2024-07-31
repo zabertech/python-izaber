@@ -6,7 +6,7 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 
 - `python`: 2.7, then 3.6 and up
 - `pyYAML`: >5.4
-- `pytz`: >2021.1 
+- `pytz`: >2021.1
 - `Jinja2`: >2.11.3
 
 ## 2.20210111
@@ -129,3 +129,7 @@ Update `pyproject.toml` to be a bit more strict about what python versions are b
 1. Added ENV support for `izaber.yaml` which may be useful in Docker deployments
   - Setting the `IZABER_YAML` ENV value to the same value as a normal `izaber.yaml`, it will be used instead if the file doesn't exist
   - Setting the `IZABER_ENVIRONMENT` ENV value will be used if no explicit environment has been defined for `initialize` (using `initialize`'s `environment` argument will take precedence over `IZABER_ENVIRONMENT`)
+
+## 3.2.20240731
+
+1. Added support for keyword argument `log_usage_to_file` in initialize function which will log system and config information to file
